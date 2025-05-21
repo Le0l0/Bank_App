@@ -21,6 +21,11 @@ public class User
 		}
 	}
 	
+	public User(String username, long balance) {
+		this.username = username;
+		this.balance = 0;
+	}
+	
 	
 	
 	// kreiranje datoteka za spremanje podataka o korisniku i njegovom racunu

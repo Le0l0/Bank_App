@@ -1,6 +1,7 @@
 package bank;
 
 import java.util.Scanner;
+import java.io.*;
 
 public class App
 {
@@ -19,7 +20,7 @@ public class App
 			if (username.contains(" ") || username.length() > 32) {
 				System.out.println("Korisnicko ime nesmije sadrzavati razmake i biti dulje od 32 znaka! Pokusajte ponovo. ");
 			}
-			else {break;}
+			else break;
 		}
 		
 		System.out.println("Password: ");
@@ -29,12 +30,67 @@ public class App
 			if (password.length() > 32) {
 				System.out.println("Lozinka nesmije biti dulja od 32 znaka! Pokusajte ponovo. ");
 			}
-			else {break;}
+			else break;
 		}
 		
 		User new_user = new User(username, password);
 		
 		return new_user;
+	}
+	
+	
+	
+	public User login() {
+		String username;
+		String passwordAttempt;
+		String password;
+		long balance = 0;
+		boolean success = false;
+		String tmps = "";
+		
+		while (true) {
+			
+			System.out.println("Username: ");
+			while (true) {
+				username = scanner.nextLine();
+				
+				if (username.contains(" ") || username.length() > 32) {
+					System.out.println("Korisnicko ime nesmije sadrzavati razmake i biti dulje od 32 znaka! Pokusajte ponovo. ");
+				}
+				else break;
+			}
+			
+			System.out.println("Password: ");
+			while (true) {
+				passwordAttempt = scanner.nextLine();
+				
+				if (passwordAttempt.length() > 32) {
+					System.out.println("Lozinka nesmije biti dulja od 32 znaka! Pokusajte ponovo. ");
+				}
+				else break;
+			}
+			
+			File testfile = new File(username + ".txt");
+			if (testfile.exists()) {
+				try (BufferedReader reader = new BufferedReader(new FileReader(username + ".txt"))) {
+					password = reader.readLine();
+					// if (passwords) {success = true;}
+					balance = Long.parseLong(reader.readLine());
+				} catch (IOException e) {
+					System.out.println(e);
+				}
+			}
+			
+			if (success = true) break;
+			else {
+				System.out.println("Korisnicko ime ili lozinka su pogresni, pokusajte ponovo. ");
+			}
+			
+		}
+		
+		User user = new User(username, balance);
+		
+		return user;
 	}
 	
 	

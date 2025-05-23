@@ -1,8 +1,6 @@
 package bank;
 
-// import java.util.Scanner;
 import java.io.*;
-// import java.security.*;
 
 public class User
 {
@@ -10,20 +8,20 @@ public class User
 	long balance;
 	
 
-	
+	// registracija novog korisnika
 	public User(String username, String password) {
 		this.username = username;
 		this.balance = 0;
-		try {
-			createFiles(this.username, this.balance, password);
-		} catch (IOException e) {
-			System.out.println(e);
-		}
+			try {
+				createFiles(this.username, this.balance, password);
+			} catch (IOException e) {
+				System.out.println(e);
+			}
 	}
-	
+	// normalan konstruktor
 	public User(String username, long balance) {
 		this.username = username;
-		this.balance = 0;
+		this.balance = balance;
 	}
 	
 	
@@ -32,7 +30,7 @@ public class User
 	public void createFiles(String username, long balance, String password) throws IOException {
 		try(FileWriter writer = new FileWriter(username + ".txt", false))
 		{
-			writer.write(password + "\n" + balance + "\n");
+			writer.write(Encryption.getMD5(password) + "\n" + balance + "\n");
 		}
 		try
 		{

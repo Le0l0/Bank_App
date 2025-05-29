@@ -38,7 +38,7 @@ public class User
 //			writer.write(Encryption.encryptMD5(password) + "\n");						// prva linija je enkriptirana lozinka
 //			writer.write(Encryption.encryptAES(password, password, password) + "\n");
 			writer.write(Encryption.encryptSHA(password) + "\n");
-			writer.write(BankAccount.lastNumber++ + "\n" + 0 + "\n" + "euro" + "\n");	// dalje su zapisani podatci o stanju racuna: broj racuna, stanje, valuta
+			writer.write(BankAccount.lastNumber++ + "\n" + 0 + "\n" + "EUR" + "\n");	// dalje su zapisani podatci o stanju racuna: broj racuna, stanje, valuta
 		}
 		try {
 			File user_history = new File(username + "_history.txt");
@@ -64,8 +64,8 @@ public class User
 			}
 			// registracija neuspjesna
 			else {
-				String choice = App.getInput("Registracija neuspjesna, unesite 'e' za izlaz iz aplikacije ili bilo koji drugi znak kako bi ponovo pokusali. ", 32, false);
-				if (choice.charAt(0) == 'e' || choice.charAt(0) == 'E') {				// izlaz
+				char choice = App.getChar("Registracija neuspjesna, unesite 'e' za izlaz iz aplikacije ili bilo koji drugi znak kako bi ponovo pokusali. ");
+				if (choice == 'e') {													// izlaz
 					return null;
 				}
 			}
@@ -95,8 +95,8 @@ public class User
 			
 			// ako prijava nije uspjesna pokusaj ponovo ili izadi iz aplikacije
 			else {
-				String choice = App.getInput("Korisnicko ime ili lozinka su pogresni, unesite 'e' za izlaz iz aplikacije ili bilo koji drugi znak kako bi ponovo pokusali. ", 32, false);
-				if (choice.charAt(0) == 'e' || choice.charAt(0) == 'E') {				// izlaz
+				char choice = App.getChar("Korisnicko ime ili lozinka su pogresni, unesite 'e' za izlaz iz aplikacije ili bilo koji drugi znak kako bi ponovo pokusali. ");
+				if (choice == 'e') {				// izlaz
 					return null;
 				}
 			}
@@ -184,7 +184,7 @@ public class User
 		
 		// ako nema dovoljno novaca transakciju nije moguce izvrsiti
 		if (account.balance < amount) {
-			System.out.println("Nedovoljno novca na racunu. ");
+			System.out.println("Nedovoljno novca na racunu. Transakcija neuspjesna. ");
 			return;
 		}
 		

@@ -30,7 +30,7 @@ public class App
 		}
 	}
 	
-	public static char getInput(String text, String allowedInputs) {
+	public static char getCharStrict(String text, String allowedInputs) {
 		String input = null;
 		
 		while (true) {
@@ -41,6 +41,18 @@ public class App
 				for (int i = 0; i < allowedInputs.length(); i++) {
 					if (tmp == allowedInputs.charAt(i)) return tmp;
 				}
+			}
+		}
+	}
+	
+	public static char getChar(String text) {
+		String input = null;
+		
+		while (true) {
+			System.out.println(text);
+			input = scanner.nextLine();
+			if (input.length() == 1) {
+				return input.toLowerCase().charAt(0);
 			}
 		}
 	}
@@ -55,7 +67,7 @@ public class App
 		// prijava ili registracija u sustav
 		while (true) {
 			
-			choice = getInput("r - registracija, p - prijava, e - izlaz", "rpe");
+			choice = getCharStrict("r - registracija, p - prijava, e - izlaz", "rpe");
 			
 			// registracija
 			if (choice == 'r') {
@@ -120,13 +132,13 @@ public class App
 		while (true) {
 			
 			// odabir opcije
-			choice = getInput("\ne - odjava, s - stanje racuna, u - uplati/isplati novac, p - placanje, t - popis transakcija, l - prikaz tecajne liste\n", "esuptl");
+			choice = getCharStrict("\ne - odjava, s - stanje racuna, u - uplati/isplati novac, p - placanje, t - popis transakcija, l - prikaz tecajne liste\n", "esuptl");
 			
 			
 			// odjava
 			if (choice == 'e') {
 				// pitaj korisnika je li siguran
-				choice = getInput("Jeste li sigurni da se zelite odjaviti od aplikacije? d/n", "dn");
+				choice = getCharStrict("Jeste li sigurni da se zelite odjaviti od aplikacije? d/n", "dn");
 				if (choice == 'd') {
 					break;
 				}
@@ -137,25 +149,25 @@ public class App
 			else if (choice == 's') {
 				// dohvati racun prijavljenog korisnika i ispisi podatke
 				BankAccount account = BankAccount.getAccount(user);
-				System.out.println("Broj racuna: " + account.accNumber + "\nStanje na racunu: " + account.balance + " " + account.value);
+				System.out.printf("Broj racuna: %d\nStanje na racunu: %.2f %s", account.accNumber, account.balance, account.value);
 			}
 			
 			
 			// uplata
 			else if (choice == 'u') {
-				double paymentN = 0;
+				double paymentA = 0;
 				// unos
 				while (true) {
 					String tmp = getInput("Unesite iznos uplate: ", 32, true);
 					try {
-						paymentN = Double.parseDouble(tmp);
+						paymentA = Double.parseDouble(tmp);
 						break;
 					} catch (NumberFormatException e) {
 						System.out.println("Neispravan unos, pokusajte ponovo. ");
 					}
 				}
 				// pokusaj uplate/isplate
-				user.makePayment(paymentN);
+				user.makePayment(paymentA);
 			}
 			
 			
@@ -177,29 +189,25 @@ public class App
 				}
 				
 				// pitaj korisnika kako zeli sortirati
-				while (true) {
-					choice = getInput("Zelite li ih sortirane prema datumu ili iznosu? \nD - po datumu, i - po iznosu", "di");
-					
-					// po datumu
-					if (choice == 'd') {
-						choice = getInput("Zelite li ih sortirane od najstrarijih prema najnovijim ili obrnuto? \nn - od najstrarijih, o - obrnuto", "no");
-						// okreni poredak ako treba
-						if (choice == 'o') {
-							Collections.reverse(user.transactionList);
-						}
-						break;
+				choice = getCharStrict("Zelite li ih sortirane prema datumu ili iznosu? \nd - po datumu, i - po iznosu", "di");
+				
+				// po datumu
+				if (choice == 'd') {
+					choice = getCharStrict("Zelite li ih sortirane od najstrarijih prema najnovijim ili obrnuto? \nn - od najstrarijih, o - obrnuto", "no");
+					// okreni poredak ako treba
+					if (choice == 'o') {
+						Collections.reverse(user.transactionList);
 					}
-					// po iznosu
-					else if (choice == 'i') {
-						// sortiraj po iznosu
-						user.transactionList.sort(new TransactionComparator());
-						
-						choice = getInput("Zelite li ih sortirane od najvecih prema najmanjima ili obrnuto? \nn - od najvacih, o - obrnuto", "no");
-						// okreni poredak ako treba
-						if (choice == 'o') {
-							Collections.reverse(user.transactionList);
-						}
-						break;
+				}
+				// po iznosu
+				else if (choice == 'i') {
+					// sortiraj po iznosu
+					user.transactionList.sort(new TransactionComparator());
+					
+					choice = getCharStrict("Zelite li ih sortirane od najvecih prema najmanjima ili obrnuto? \nn - od najvacih, o - obrnuto", "no");
+					// okreni poredak ako treba
+					if (choice == 'o') {
+						Collections.reverse(user.transactionList);
 					}
 				}
 				

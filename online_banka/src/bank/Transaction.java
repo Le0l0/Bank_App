@@ -6,6 +6,17 @@ import java.util.Comparator;
 
 
 
+class TransactionComparator implements Comparator<Transaction>
+{
+	
+	public int compare(Transaction t1, Transaction t2) {
+		return t1.amount > t2.amount ? -1 : 1;
+	}
+	
+}
+
+
+
 public class Transaction
 {
 	String IBAN;
@@ -25,15 +36,4 @@ public class Transaction
 		this.amount = amount;
 		this.date = date;
 	}
-}
-
-
-
-class TransactionComparator implements Comparator<Transaction>
-{
-	
-	public int compare(Transaction t1, Transaction t2) {
-		return t1.amount > t2.amount ? -1 : 1;
-	}
-	
 }

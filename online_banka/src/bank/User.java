@@ -46,6 +46,15 @@ public class User
 		} finally {}
 	}
 	
+	// brisanje podataka o racunu
+	public boolean deleteFiles() {
+		File user = new File(username + ".txt");
+		File user_history = new File(username + "_history.txt");
+		
+		//boolean ret = user.delete() & user_history.delete();
+		return user.delete() & user_history.delete();		
+	}
+	
 	
 	
 	// registracija korisnika
@@ -56,6 +65,11 @@ public class User
 		while (true) {
 			// unos korisnickog imena i lozinke
 			username = App.getInput("Username: ", 32, true);
+			if (getEPassword(username) != null) {
+				System.out.println("Ovo korisnicko ime je zauzeto, uneste neko drugo. ");
+				continue;
+			}
+			
 			password = App.getInput("Password: ", 32, false);
 			
 			// registracija uspjesna

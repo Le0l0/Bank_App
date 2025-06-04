@@ -21,9 +21,8 @@ public class App
 			System.out.println(text);
 			input = scanner.nextLine();
 			if (input.length() > 0 && input.length() <= maxLength && (!noSpace || !input.contains(" "))) return input;
-			else if (input.length() <= 0);
-			else {
-				System.out.print("Unesite nesto!\tUnos nesmije biti dulji od " + maxLength);
+			else if (input.length() > 0) {
+				System.out.print("Unos nesmije biti dulji od " + maxLength);
 				if (noSpace) System.out.println(" i ne smije sadrzavati razmake. ");
 				else System.out.println(". ");
 			}

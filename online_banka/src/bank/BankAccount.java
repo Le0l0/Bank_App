@@ -20,7 +20,7 @@ public class BankAccount
 	public BankAccount() {
 		this.accNumber = 0;
 		this.balance = 0;
-		this.value = "kuna";
+		this.value = "KN";
 	}
 	
 	public BankAccount(int accNumber, double balance, String value) {

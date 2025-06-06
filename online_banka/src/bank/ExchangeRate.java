@@ -42,8 +42,7 @@ public class ExchangeRate
 		this.valuta = null;
 	}
 	
-	public ExchangeRate(int broj_tecajnice, LocalDate datum_primjene, String drzava, String drzava_iso, double kupovni_tecaj,
-						double prodajni_tecaj, int sifra_valute, double srednji_tecaj, String valuta) {
+	public ExchangeRate(int broj_tecajnice, LocalDate datum_primjene, String drzava, String drzava_iso, double kupovni_tecaj, double prodajni_tecaj, int sifra_valute, double srednji_tecaj, String valuta) {
 		this.broj_tecajnice = broj_tecajnice;
 		this.datum_primjene = datum_primjene;
 		this.drzava = drzava;

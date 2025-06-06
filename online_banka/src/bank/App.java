@@ -148,7 +148,7 @@ public class App
 			else if (choice == 's') {
 				// dohvati racun prijavljenog korisnika i ispisi podatke
 				BankAccount account = BankAccount.getAccount(user);
-				System.out.printf("Broj racuna: %d\nStanje na racunu: %.2f %s", account.accNumber, account.balance, account.value);
+				System.out.printf("Broj racuna: %d\nStanje na racunu: %.2f %s\n\n", account.accNumber, account.balance, account.value);
 			}
 			
 			
@@ -216,6 +216,7 @@ public class App
 					System.out.println("Iznos:\t\t\t" + transaction.amount);
 					System.out.println("Datum:\t\t\t" + transaction.date);
 				}
+				System.out.println();
 			}
 			
 			// tecajna lista
@@ -250,7 +251,7 @@ public class App
 		try {
 			BankAccount.writeLastNumber();
 		} catch (IOException e) {
-			System.out.println(e + "\nNe mogu zapisati zadnji broj! ");
+			System.out.println(e + "\nNe mogu zapisati zadnji broj! Broj je: " + BankAccount.lastNumber);
 			return;
 		}
 		System.out.println("Bye! ");

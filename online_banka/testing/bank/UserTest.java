@@ -8,9 +8,9 @@ import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.TestMethodOrder;
 
-import java.io.ByteArrayInputStream;
-
 import java.io.File;
+
+import java.util.Scanner;
 
 
 
@@ -89,7 +89,10 @@ class UserTest
 	@Test
 	@Order(04)
 	public void test_makeTransaction() {
-		// TODO: treba opet koristiti System.setIn()
+		// postavljanje unosa
+//        App.scanner.close();
+//        App.scanner = new Scanner("H R123\nHR123\n1 2 3\n-123\n9999\nHR123\n10\n");
+        // TODO: dovrsi
 	}
 	
 	@Test
@@ -99,32 +102,6 @@ class UserTest
 		user.loadTransactionList();
 		assertTrue(user.transactionList.size() > 0);
 	}
-	
-//	@Test
-//	@Order(11)
-//	public void test_registrationFail() {
-//		// postavljanje unosa
-//		String input = "r\naaa\naa\na\ne\n";
-//		ByteArrayInputStream in = new ByteArrayInputStream(input.getBytes());
-//        System.setIn(in);
-//        // testiranje
-//        User user = App.welcomeSignIn();
-//        assertNull(user);
-//	}
-																// ???
-//	@Test
-//	@Order(12)
-//	public void test_registrationSuccess() {
-//		// postavljanje unosa
-//		String input = "r\nbbb\nbb\nb\nd\nbbb\nbbb\nbbb\n\n";
-//		System.out.println(input);
-//		ByteArrayInputStream in = new ByteArrayInputStream(input.getBytes());
-//        System.setIn(in);
-//        // testiranje
-//        User user = App.welcomeSignIn();
-//        user.deleteFiles();
-//        assertNotNull(user);
-//	}
 
 	@Test
 	@Order(11)
@@ -132,13 +109,12 @@ class UserTest
 		new User("aaa").deleteFiles();
 		
 		// postavljanje unosa
-		String input = "r\naaa\naa\na\ne\nr\naaa\naa\na\nd\naaa\naaa\naaa\n";
-		ByteArrayInputStream in = new ByteArrayInputStream(input.getBytes());
-        System.setIn(in);
+        App.scanner.close();
+        App.scanner = new Scanner("aaa\naa\na\ne\naaa\naa\na\nd\naaa\naaa\naaa\n");
         
         // testiranje
-        User userFail = App.welcomeSignIn();
-        User userSuccess = App.welcomeSignIn();
+        User userFail = User.registration();
+        User userSuccess = User.registration();
         
         assertAll(
 			"registration",
@@ -148,19 +124,22 @@ class UserTest
         
 	}
 	
-//	@Test TODO: dovrsi
-//	@Order(2)
-//	public void test_login() {
-//		// postavljanje unosa
-//		String input = "l\nnepostojeci_korisnik\na\ne\nl\nbbb\nbbb\n";
-//		ByteArrayInputStream in = new ByteArrayInputStream(input.getBytes());
-//        System.setIn(in);
-//        // testiranje
-//        User userFail = App.welcomeSignIn();
-//        User userSuccess = App.welcomeSignIn();
-//        userSuccess.deleteFiles();
-//        assertNull(userFail);
-//        assertNotNull(userSuccess);
-//	}
+	@Test
+	@Order(12)
+	public void test_login() {
+		// postavljanje unosa
+        App.scanner.close();
+        App.scanner = new Scanner("nepostojeci_korisnik\na\ne\naaa\naaa\n");
+        
+        // testiranje
+        User userFail = User.login();
+        User userSuccess = User.login();
+        userSuccess.deleteFiles();
+        assertAll(
+    			"login",
+    			() -> assertNull(userFail),
+    			() -> assertNotNull(userSuccess)
+    		);
+	}
 
 }

@@ -2,7 +2,7 @@ package bank;
 
 import java.util.Scanner;
 import java.io.*;
-import java.util.Collections;
+import java.util.Collections;					// za sortiranje ArrayList
 
 
 
@@ -131,7 +131,7 @@ public class App
 		while (true) {
 			
 			// odabir opcije
-			choice = getCharStrict("\ne - odjava, s - stanje racuna, u - uplati/isplati novac, p - placanje, t - popis transakcija, l - prikaz tecajne liste\n", "esuptl");
+			choice = getCharStrict("\ne - odjava, s - stanje racuna, u - uplati/isplati novac, p - placanje, t - popis transakcija, l - prikaz tecajne liste, b - brisanje racuna\n", "esuptlb");
 			
 			
 			// odjava
@@ -231,6 +231,27 @@ public class App
 				for (ExchangeRate rate : ExchangeRate.eRateList) {
 					rate.printExchangeRate();
 				}
+			}
+			
+			
+			// tecajna lista
+			else if (choice == 'b') {
+				// pitaj korisnika je li siguran
+				choice = App.getCharStrict("Jeste li sigurni da zelite izbrisati vas racun i sve podatke o stanju i transakcijama? d/n", "dn");
+				if (choice == 'n') continue;
+				
+				String EPassword = user.getEPassword();
+				String passwordAttempt = App.getInput("Molimo vas potvrdite odluku svojom lozinkom: ", 32, false);
+				
+				// krivi password - vrati korisnika nazad na izbornik
+				if (Encryption.encryptSHA(passwordAttempt).equals(EPassword) == false) {
+					System.out.println("Neispravna lozinka!\n");
+					continue;
+				}
+				
+				// tocan password - izbrisi korisnikove datoteke i izadi iz aplikacije
+				user.deleteFiles();
+				break;
 			}
 			
 		}

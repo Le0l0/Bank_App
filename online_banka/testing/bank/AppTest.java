@@ -14,7 +14,7 @@ import org.junit.jupiter.api.TestMethodOrder;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class AppTest
 {
-	// varijable
+	// varijable i objekti
 	
 	
 

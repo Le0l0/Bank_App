@@ -48,11 +48,11 @@ public class User
 	
 	// brisanje podataka o racunu
 	public boolean deleteFiles() {
-		File user = new File(username + ".txt");
-		File user_history = new File(username + "_history.txt");
-		
+		File userFile = new File(username + ".txt");
+		File user_historyFile = new File(username + "_history.txt");
+				
 		//boolean ret = user.delete() & user_history.delete();
-		return user.delete() & user_history.delete();		
+		return userFile.delete() & user_historyFile.delete();		
 	}
 	
 	

@@ -10,6 +10,14 @@ import java.util.Collections;					// za sortiranje ArrayList
 public class App
 {
 	static Scanner scanner = new Scanner(System.in);
+	private static String secretKey = "9087e911d037b1c52b9417877c406784";
+	private static String salt = "5105c7ca13276c99f8a79dc21ffca120";
+	
+	
+	
+	// getteri za secretKey i salt (za AES)
+	static String getSecretKey() {return secretKey;}
+	static String getSalt() {return salt;}
 	
 	
 	
@@ -244,7 +252,7 @@ public class App
 				String passwordAttempt = App.getInput("Molimo vas potvrdite odluku svojom lozinkom: ", 32, false);
 				
 				// krivi password - vrati korisnika nazad na izbornik
-				if (Encryption.encryptSHA(passwordAttempt).equals(EPassword) == false) {
+				if (Encryption.testPassword(passwordAttempt, EPassword) == false) {
 					System.out.println("Neispravna lozinka!\n");
 					continue;
 				}

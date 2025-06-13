@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.TestMethodOrder;
 
 import java.time.LocalDate;
+import java.io.IOException;
 
 
 
@@ -81,12 +82,8 @@ class ExchangeRateTest
 	
 	@Test
 	@Order(02)
-	public void test_loadExchangeRateList() {
-		try {
-			ExchangeRate.loadExchangerateList();
-		} catch (Exception e) {
-			System.out.println(e);
-		}
+	public void test_loadExchangeRateList() throws IOException {
+		ExchangeRate.loadExchangerateList();
 		
 		assertEquals(13, ExchangeRate.eRateList.size());
 	}

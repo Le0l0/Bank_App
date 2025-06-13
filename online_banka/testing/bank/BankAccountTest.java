@@ -36,13 +36,8 @@ class BankAccountTest
 	
 	@Test
 	@Order(01)
-	public void test_initializeLastNumber() {
-		try {
-			BankAccount.initializeLastNumber();
-		} catch (IOException | NumberFormatException e) {
-			System.out.println(e);
-		}
-		
+	public void test_initializeLastNumber() throws IOException, NumberFormatException {
+		BankAccount.initializeLastNumber();
 		assertNotEquals(-1, BankAccount.lastNumber);
 	}
 	
@@ -63,18 +58,14 @@ class BankAccountTest
 	
 	@Test
 	@Order(03)
-	public void test_updateAccount() {
+	public void test_updateAccount() throws IOException {
 		int prevAccNum = bankAcc.accNumber;
 		String prevAccValue = bankAcc.value;
 		bankAcc.accNumber = ++BankAccount.lastNumber;
 		
-		try {
-			bankAcc.updateAccount(user);
-		} catch (IOException e) {
-			System.out.println(e);
-		}
-		
+		bankAcc.updateAccount(user);
 		bankAcc = BankAccount.getAccount(user);
+		
 		assertAll(
 	    	"updateAccount",
 	    	() -> assertNotEquals(prevAccNum, bankAcc.accNumber),
@@ -82,39 +73,27 @@ class BankAccountTest
 	    );
 		
 		bankAcc.accNumber = prevAccNum;
-		try {
-			bankAcc.updateAccount(user);
-		} catch (IOException e) {
-			System.out.println(e);
-		}
-	}
+		bankAcc.updateAccount(user);
+}
 	
 	@Test
 	@Order(100)
-	public void test_writelastNumber() {
+	public void test_writelastNumber() throws IOException {
 		int lastNumBefore = -1;
 		int lastNumAfter = -1;
 		
 		// procitaj lastNumber iz datoteke prije nego sta zapisemo novi
-		try (BufferedReader reader = new BufferedReader(new FileReader("lastNumber.txt"))) {
-			lastNumBefore = Integer.parseInt(reader.readLine());
-		} catch (IOException e) {
-			System.out.println(e);
-		}
-		
+		BufferedReader reader = new BufferedReader(new FileReader("lastNumber.txt"));
+		lastNumBefore = Integer.parseInt(reader.readLine());
+		reader.close();
+
 		// zapisi novi lastNumber u datoteku
-		try {
-			BankAccount.writeLastNumber();
-		} catch (IOException e) {
-			System.out.println(e);
-		}
+		BankAccount.writeLastNumber();
 		
 		// procitaj lastNumber iz datoteke nakon sta smo zapisali novi
-		try (BufferedReader reader = new BufferedReader(new FileReader("lastNumber.txt"))) {
-			lastNumAfter = Integer.parseInt(reader.readLine());
-		} catch (IOException e) {
-			System.out.println(e);
-		}
+		reader = new BufferedReader(new FileReader("lastNumber.txt"));
+		lastNumAfter = Integer.parseInt(reader.readLine());
+		reader.close();
 		
 		assertTrue(lastNumBefore < lastNumAfter && lastNumBefore != -1 && lastNumAfter != -1);
 	}

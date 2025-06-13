@@ -24,20 +24,37 @@ public class User
 		this.username = username;
 		this.transactionList = new ArrayList<Transaction>();
 		try {
-			createFiles(password);
+			createFiles(password, 's');
 		} catch (IOException e) {
 			System.out.println(e);
 		}
 	}
 	
+	// konstruktor koristen pri registraciji novog korisnika
+		public User(String username, String password, char encryption) {
+			this.username = username;
+			this.transactionList = new ArrayList<Transaction>();
+			try {
+				createFiles(password, encryption);
+			} catch (IOException e) {
+				System.out.println(e);
+			}
+		}
+	
 	
 	
 	// kreiranje datoteka za spremanje podataka o korisniku i njegovom racunu
-	public void createFiles(String password) throws IOException {
+	public void createFiles(String password, char encryption) throws IOException {
 		try (FileWriter writer = new FileWriter(username + ".txt", false)) {
-//			writer.write(Encryption.encryptMD5(password) + "\n");						// prva linija je enkriptirana lozinka
+			// prva linija je enkriptirana lozinka
+			switch (encryption) {
+			case 'm': writer.write(Encryption.encryptMD5(password) + "\n"); break;
+			case 'a': writer.write(Encryption.encryptAES(password, password, password) + "\n"); break;
+			default : writer.write(Encryption.encryptSHA(password) + "\n"); break;
+			}
+//			writer.write(Encryption.encryptMD5(password) + "\n");
 //			writer.write(Encryption.encryptAES(password, password, password) + "\n");
-			writer.write(Encryption.encryptSHA(password) + "\n");
+//			writer.write(Encryption.encryptSHA(password) + "\n");
 			writer.write(BankAccount.lastNumber++ + "\n" + 0 + "\n" + "EUR" + "\n");	// dalje su zapisani podatci o stanju racuna: broj racuna, stanje, valuta
 		}
 		try {
@@ -46,16 +63,31 @@ public class User
 		} finally {}
 	}
 	
+	// brisanje podataka o racunu
+	public boolean deleteFiles() {
+		File userFile = new File(username + ".txt");
+		File user_historyFile = new File(username + "_history.txt");
+				
+		//boolean ret = user.delete() & user_history.delete();
+		return userFile.delete() & user_historyFile.delete();		
+	}
+	
 	
 	
 	// registracija korisnika
 	public static User registration() {
-		String username;
-		String password;
+		String username = null;
+		String password = null;
+		char choice = '0';
 		
 		while (true) {
 			// unos korisnickog imena i lozinke
 			username = App.getInput("Username: ", 32, true);
+			if (getEPassword(username) != null) {
+				System.out.println("Ovo korisnicko ime je zauzeto, uneste neko drugo. ");
+				continue;
+			}
+			
 			password = App.getInput("Password: ", 32, false);
 			
 			// registracija uspjesna
@@ -64,14 +96,15 @@ public class User
 			}
 			// registracija neuspjesna
 			else {
-				char choice = App.getChar("Registracija neuspjesna, unesite 'e' za izlaz iz aplikacije ili bilo koji drugi znak kako bi ponovo pokusali. ");
+				choice = App.getChar("Registracija neuspjesna, unesite 'e' za izlaz iz aplikacije ili bilo koji drugi znak kako bi ponovo pokusali. ");
 				if (choice == 'e') {													// izlaz
 					return null;
 				}
 			}
 		}
 		
-		return new User(username, password);
+		choice = App.getChar("Odaberite koji tip enkripcije cete koristiti za lozinku. m - MD5, a - AES, s - SHA");
+		return new User(username, password, choice);
 	}
 	
 	
@@ -89,9 +122,10 @@ public class User
 			
 			// provjerimo je li unesena lozinka jednaka onoj koja je zapisana u korisnikovoj datoteci
 			EPassword = getEPassword(username);
-//			if (EPassword != null && Encryption.encryptMD5(passwordAttempt).equals(EPassword)) break;
-//			if (EPassword != null && Encryption.testPasswordAES(passwordAttempt, EPassword)) break;
-			if (EPassword != null && Encryption.encryptSHA(passwordAttempt).equals(EPassword)) break;
+			if (EPassword != null && (
+				Encryption.encryptMD5(passwordAttempt).equals(EPassword) ||
+				Encryption.testPasswordAES(passwordAttempt, EPassword) ||
+				Encryption.encryptSHA(passwordAttempt).equals(EPassword))) break;
 			
 			// ako prijava nije uspjesna pokusaj ponovo ili izadi iz aplikacije
 			else {

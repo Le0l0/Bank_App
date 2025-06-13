@@ -2,7 +2,7 @@ package bank;
 
 import java.util.Scanner;
 import java.io.*;
-import java.util.Collections;
+import java.util.Collections;					// za sortiranje ArrayList
 
 
 
@@ -21,11 +21,22 @@ public class App
 			System.out.println(text);
 			input = scanner.nextLine();
 			if (input.length() > 0 && input.length() <= maxLength && (!noSpace || !input.contains(" "))) return input;
-			else if (input.length() <= 0);
-			else {
-				System.out.print("Unesite nesto!\tUnos nesmije biti dulji od " + maxLength);
+			else if (input.length() > 0) {
+				System.out.print("Unos nesmije biti dulji od " + maxLength);
 				if (noSpace) System.out.println(" i ne smije sadrzavati razmake. ");
 				else System.out.println(". ");
+			}
+		}
+	}
+	
+	public static char getChar(String text) {
+		String input = null;
+		
+		while (true) {
+			System.out.println(text);
+			input = scanner.nextLine();
+			if (input.length() == 1) {
+				return input.toLowerCase().charAt(0);
 			}
 		}
 	}
@@ -41,18 +52,6 @@ public class App
 				for (int i = 0; i < allowedInputs.length(); i++) {
 					if (tmp == allowedInputs.charAt(i)) return tmp;
 				}
-			}
-		}
-	}
-	
-	public static char getChar(String text) {
-		String input = null;
-		
-		while (true) {
-			System.out.println(text);
-			input = scanner.nextLine();
-			if (input.length() == 1) {
-				return input.toLowerCase().charAt(0);
 			}
 		}
 	}
@@ -132,7 +131,7 @@ public class App
 		while (true) {
 			
 			// odabir opcije
-			choice = getCharStrict("\ne - odjava, s - stanje racuna, u - uplati/isplati novac, p - placanje, t - popis transakcija, l - prikaz tecajne liste\n", "esuptl");
+			choice = getCharStrict("\ne - odjava, s - stanje racuna, u - uplati/isplati novac, p - placanje, t - popis transakcija, l - prikaz tecajne liste, b - brisanje racuna\n", "esuptlb");
 			
 			
 			// odjava
@@ -149,7 +148,7 @@ public class App
 			else if (choice == 's') {
 				// dohvati racun prijavljenog korisnika i ispisi podatke
 				BankAccount account = BankAccount.getAccount(user);
-				System.out.printf("Broj racuna: %d\nStanje na racunu: %.2f %s", account.accNumber, account.balance, account.value);
+				System.out.printf("Broj racuna: %d\nStanje na racunu: %.2f %s\n\n", account.accNumber, account.balance, account.value);
 			}
 			
 			
@@ -217,13 +216,14 @@ public class App
 					System.out.println("Iznos:\t\t\t" + transaction.amount);
 					System.out.println("Datum:\t\t\t" + transaction.date);
 				}
+				System.out.println();
 			}
 			
 			// tecajna lista
 			else if (choice == 'l') {
 				// ucitaj tecajnu listu u staticki objekt klase ExchangeRate
 				try {
-					ExchangeRate.setExchangerateList();
+					ExchangeRate.loadExchangerateList();
 				} catch (IOException e) {
 					System.out.println("Trenutno nije moguce dohvatiti tecajnu listu. ");
 				}
@@ -233,12 +233,36 @@ public class App
 				}
 			}
 			
+			
+			// tecajna lista
+			else if (choice == 'b') {
+				// pitaj korisnika je li siguran
+				choice = App.getCharStrict("Jeste li sigurni da zelite izbrisati vas racun i sve podatke o stanju i transakcijama? d/n", "dn");
+				if (choice == 'n') continue;
+				
+				String EPassword = user.getEPassword();
+				String passwordAttempt = App.getInput("Molimo vas potvrdite odluku svojom lozinkom: ", 32, false);
+				
+				// krivi password - vrati korisnika nazad na izbornik
+				if (Encryption.encryptSHA(passwordAttempt).equals(EPassword) == false) {
+					System.out.println("Neispravna lozinka!\n");
+					continue;
+				}
+				
+				// tocan password - izbrisi korisnikove datoteke i izadi iz aplikacije
+				if (user.deleteFiles() == true) {
+					System.out.println("Podatci uspjesno izbrisani. ");
+				} else {
+					System.out.println("Doslo je do pogreske. ");
+				}
+				break;
+			}
+			
 		}
 		
 		
 		// kraj aplikacije
 		cleanUp();
-		System.out.println("Bye! ");
 		return;
 	}
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -251,10 +275,10 @@ public class App
 		try {
 			BankAccount.writeLastNumber();
 		} catch (IOException e) {
-			System.out.println(e + "\nNe mogu zapisati zadnji broj! ");
+			System.out.println(e + "\nNe mogu zapisati zadnji broj! Broj je: " + BankAccount.lastNumber);
 			return;
 		}
-		System.out.println("Bye! ");
+		System.out.println("\n\n\nBye! ");
 	}
 	
 }

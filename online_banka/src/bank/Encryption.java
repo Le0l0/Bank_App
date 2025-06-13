@@ -120,7 +120,6 @@ public class Encryption
 	public static boolean testPasswordAES(String string, String encryptedString) {
 //		return Encryption.decryptAES(encryptedString, Encryption.encryptMD5(string), Encryption.encryptMD5(string)) == null ? false : true;
 		return Encryption.decryptAES(encryptedString, string, string) == null ? false : true;
-
 	}
 	
 	

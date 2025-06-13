@@ -4,5 +4,5 @@
 /**
  * 
  */
-module online_banka {
-}
+/*module online_banka {
+}*/

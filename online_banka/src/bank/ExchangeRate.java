@@ -42,8 +42,7 @@ public class ExchangeRate
 		this.valuta = null;
 	}
 	
-	public ExchangeRate(int broj_tecajnice, LocalDate datum_primjene, String drzava, String drzava_iso, double kupovni_tecaj,
-						double prodajni_tecaj, int sifra_valute, double srednji_tecaj, String valuta) {
+	public ExchangeRate(int broj_tecajnice, LocalDate datum_primjene, String drzava, String drzava_iso, double kupovni_tecaj, double prodajni_tecaj, int sifra_valute, double srednji_tecaj, String valuta) {
 		this.broj_tecajnice = broj_tecajnice;
 		this.datum_primjene = datum_primjene;
 		this.drzava = drzava;
@@ -70,7 +69,7 @@ public class ExchangeRate
 	
 	
 	// dohvati tecajnu listu i zapisi je u "eRateList"
-	public static void setExchangerateList() throws IOException {
+	public static void loadExchangerateList() throws IOException {
         // uspostavljanje veze i input streama 
         URL url = new URL("https://api.hnb.hr/tecajn-eur/v3");
         URLConnection con = url.openConnection();
@@ -149,7 +148,7 @@ public class ExchangeRate
         	
         }   
     }
-	
+
 	
 
 	public void printExchangeRate() {

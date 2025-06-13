@@ -2,8 +2,8 @@ package bank;
 
 import java.math.BigInteger;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.io.UnsupportedEncodingException;
+//import java.security.NoSuchAlgorithmException;
+//import java.io.UnsupportedEncodingException;
 ////////////////////////////////////////////////////////////////
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
@@ -23,43 +23,14 @@ public class Encryption
 	// za AES
 	private static final int KEY_LENGTH = 256;
 	private static final int ITERATION_COUNT = 65536;
-	
-	
-	
-	// MD5 ////////////////////////////////////////////////////////////////
-	// kod kopiran od GeeksForGeeks
-	public static String encryptMD5(String input) {
-        try {
-            // Static getInstance method is called with hashing MD5
-            MessageDigest md = MessageDigest.getInstance("MD5");
+	private static String secretKey = App.getSecretKey();
+	private static String salt = App.getSalt();
 
-            // digest() method is called to calculate message digest
-            // of an input digest() return array of byte
-            
-            byte[] messageDigest = md.digest(input.getBytes("UTF-8"));
-
-            // Convert byte array into signum representation
-            BigInteger no = new BigInteger(1, messageDigest);
-
-            // Convert message digest into hex value
-            String hashtext = no.toString(16);
-            while (hashtext.length() < 32) {
-                hashtext = "0" + hashtext;
-            }
-            return hashtext;
-        }
-        // For specifying wrong message digest algorithms
-        catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
-            System.out.println(e);
-            return null;
-        }
-    }
 	
-	
-	
+		
 	// AES ////////////////////////////////////////////////////////////////
 	// kod kopiran od HowToDoInJava
-	public static String encryptAES(String strToEncrypt, String secretKey, String salt) {
+	public static String encryptAES(String strToEncrypt) {
 		try {
 	        SecureRandom secureRandom = new SecureRandom();
 	        byte[] iv = new byte[16];
@@ -87,7 +58,7 @@ public class Encryption
 		}
 	}
 	
-	public static String decryptAES(String strToDecrypt, String secretKey, String salt) {
+	public static String decryptAES(String strToDecrypt) {
 	    try {
 	        byte[] encryptedData = Base64.getDecoder().decode(strToDecrypt);
 	        byte[] iv = new byte[16];
@@ -117,10 +88,11 @@ public class Encryption
 	    }
 	}
 	
-	public static boolean testPasswordAES(String string, String encryptedString) {
-//		return Encryption.decryptAES(encryptedString, Encryption.encryptMD5(string), Encryption.encryptMD5(string)) == null ? false : true;
-		return Encryption.decryptAES(encryptedString, string, string) == null ? false : true;
+	private static boolean testPasswordAES(String encryptedString) {
+		//return Encryption.decryptAES(encryptedString, Encryption.encryptMD5(string), Encryption.encryptMD5(string)) == null ? false : true;
+		return Encryption.decryptAES(encryptedString) == null ? false : true;
 	}
+	////////////////////////////////////////////////////////////////
 	
 	
 	
@@ -147,5 +119,13 @@ public class Encryption
         	return null;
         }
     }
+	////////////////////////////////////////////////////////////////
+	
+	
+	
+	public static boolean testPassword(String password, String ePassword) {
+		if (ePassword != null && (Encryption.testPasswordAES(ePassword) || Encryption.encryptSHA(password).equals(ePassword))) return true;
+		return false;
+	}
 
 }

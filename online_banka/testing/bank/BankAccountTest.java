@@ -90,7 +90,7 @@ class BankAccountTest
 	}
 	
 	@Test
-	@Order(04)
+	@Order(100)
 	public void test_writelastNumber() {
 		int lastNumBefore = -1;
 		int lastNumAfter = -1;

@@ -69,7 +69,7 @@ public class ExchangeRate
 	
 	
 	// dohvati tecajnu listu i zapisi je u "eRateList"
-	public static void setExchangerateList() throws IOException {
+	public static void loadExchangerateList() throws IOException {
         // uspostavljanje veze i input streama 
         URL url = new URL("https://api.hnb.hr/tecajn-eur/v3");
         URLConnection con = url.openConnection();

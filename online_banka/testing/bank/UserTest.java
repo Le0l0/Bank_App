@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.TestMethodOrder;
 
 import java.io.File;
-
 import java.util.Scanner;
 
 
@@ -26,6 +25,7 @@ class UserTest
 	
 	@BeforeAll
 	public static void TEST_initialize() {
+		new User("aaa").deleteFiles();
 		user = new User(testUsername, testPassword);
 	}
 	
@@ -90,9 +90,13 @@ class UserTest
 	@Order(04)
 	public void test_makeTransaction() {
 		// postavljanje unosa
-//        App.scanner.close();
-//        App.scanner = new Scanner("H R123\nHR123\n1 2 3\n-123\n9999\nHR123\n10\n");
-        // TODO: dovrsi
+        App.scanner.close();
+        App.scanner = new Scanner("H R123\nHR123\n1 2 3\n-123\n10\n");
+        
+        // testiranje
+        user.makeTransaction();
+        
+        assertEquals(90., BankAccount.getAccount(user).balance);
 	}
 	
 	@Test
@@ -105,16 +109,15 @@ class UserTest
 
 	@Test
 	@Order(11)
-	public void test_registration() {
-		new User("aaa").deleteFiles();
-		
+	public void test_registration() {		
 		// postavljanje unosa
         App.scanner.close();
-        App.scanner = new Scanner("aaa\naa\na\ne\naaa\naa\na\nd\naaa\naaa\naaa\n");
+        App.scanner = new Scanner("aaa\naa\na\ne\naaa\naa\na\nd\naaa\naaa\naaa\ns\n");
         
         // testiranje
         User userFail = User.registration();
         User userSuccess = User.registration();
+        userSuccess.deleteFiles();
         
         assertAll(
 			"registration",
@@ -129,17 +132,17 @@ class UserTest
 	public void test_login() {
 		// postavljanje unosa
         App.scanner.close();
-        App.scanner = new Scanner("nepostojeci_korisnik\na\ne\naaa\naaa\n");
+        App.scanner = new Scanner("nepostojeci_korisnik\na\ne\ntestUser\n123\n");
         
         // testiranje
         User userFail = User.login();
         User userSuccess = User.login();
-        userSuccess.deleteFiles();
+        
         assertAll(
-    			"login",
-    			() -> assertNull(userFail),
-    			() -> assertNotNull(userSuccess)
-    		);
+			"login",
+			() -> assertNull(userFail),
+			() -> assertNotNull(userSuccess)
+		);
 	}
 
 }

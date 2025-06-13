@@ -29,6 +29,18 @@ public class App
 		}
 	}
 	
+	public static char getChar(String text) {
+		String input = null;
+		
+		while (true) {
+			System.out.println(text);
+			input = scanner.nextLine();
+			if (input.length() == 1) {
+				return input.toLowerCase().charAt(0);
+			}
+		}
+	}
+	
 	public static char getCharStrict(String text, String allowedInputs) {
 		String input = null;
 		
@@ -40,18 +52,6 @@ public class App
 				for (int i = 0; i < allowedInputs.length(); i++) {
 					if (tmp == allowedInputs.charAt(i)) return tmp;
 				}
-			}
-		}
-	}
-	
-	public static char getChar(String text) {
-		String input = null;
-		
-		while (true) {
-			System.out.println(text);
-			input = scanner.nextLine();
-			if (input.length() == 1) {
-				return input.toLowerCase().charAt(0);
 			}
 		}
 	}
@@ -223,7 +223,7 @@ public class App
 			else if (choice == 'l') {
 				// ucitaj tecajnu listu u staticki objekt klase ExchangeRate
 				try {
-					ExchangeRate.setExchangerateList();
+					ExchangeRate.loadExchangerateList();
 				} catch (IOException e) {
 					System.out.println("Trenutno nije moguce dohvatiti tecajnu listu. ");
 				}
@@ -250,7 +250,11 @@ public class App
 				}
 				
 				// tocan password - izbrisi korisnikove datoteke i izadi iz aplikacije
-				user.deleteFiles();
+				if (user.deleteFiles() == true) {
+					System.out.println("Podatci uspjesno izbrisani. ");
+				} else {
+					System.out.println("Doslo je do pogreske. ");
+				}
 				break;
 			}
 			
@@ -259,7 +263,6 @@ public class App
 		
 		// kraj aplikacije
 		cleanUp();
-		System.out.println("Bye! ");
 		return;
 	}
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -275,7 +278,7 @@ public class App
 			System.out.println(e + "\nNe mogu zapisati zadnji broj! Broj je: " + BankAccount.lastNumber);
 			return;
 		}
-		System.out.println("Bye! ");
+		System.out.println("\n\n\nBye! ");
 	}
 	
 }

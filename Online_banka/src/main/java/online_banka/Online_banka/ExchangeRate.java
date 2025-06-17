@@ -17,17 +17,17 @@ import java.net.URLConnection;
 
 public class ExchangeRate
 {
-	int broj_tecajnice;
-	LocalDate datum_primjene;
-	String drzava;
-	String drzava_iso;
-	double kupovni_tecaj;
-	double prodajni_tecaj;
-	int sifra_valute;
-	double srednji_tecaj;
-	String valuta;
+	public int broj_tecajnice;
+	public LocalDate datum_primjene;
+	public String drzava;
+	public String drzava_iso;
+	public double kupovni_tecaj;
+	public double prodajni_tecaj;
+	public int sifra_valute;
+	public double srednji_tecaj;
+	public String valuta;
 	
-	static ArrayList<ExchangeRate> eRateList = new ArrayList<ExchangeRate>();
+	public static ArrayList<ExchangeRate> eRateList = new ArrayList<ExchangeRate>();
 
 	
 	
@@ -71,7 +71,10 @@ public class ExchangeRate
 	
 	
 	// dohvati tecajnu listu i zapisi je u "eRateList"
-	public static void loadExchangerateList() throws IOException, URISyntaxException {
+	public static void loadExchangeRateList() throws IOException, URISyntaxException {
+		// ocisti priajsnju listu
+		eRateList.clear();
+		
         // uspostavljanje veze i input streama 
         URL url = new URI("https://api.hnb.hr/tecajn-eur/v3").toURL();
         URLConnection con = url.openConnection();

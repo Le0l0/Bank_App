@@ -18,24 +18,31 @@ class TransactionComparator implements Comparator<Transaction>
 
 public class Transaction
 {
-	String payerIBAN;
-	String recipientIBAN;
-	double amount;
-	LocalDate date;
+	protected String payer;
+	protected String recipient;
+	protected double amount;
+	protected LocalDate date;
 	
 	
 	// konstruktori
 	public Transaction() {
-		this.payerIBAN = null;
-		this.recipientIBAN = null;
+		this.payer = null;
+		this.recipient = null;
 		this.amount = 0;
 		this.date = null;
 	}
 	
-	public Transaction(String payerIBAN, String recipientIBAN, double amount, LocalDate date) {
-		this.payerIBAN = payerIBAN;
-		this.recipientIBAN = recipientIBAN;
+	public Transaction(String payer, String recipient, double amount, LocalDate date) {
+		this.payer = payer;
+		this.recipient = recipient;
 		this.amount = amount;
 		this.date = date;
+	}
+	
+	public void printTransaction(String userIBAN, String username) {
+		System.out.println("\nPlatitelj:\t" + payer + (userIBAN.equals(payer) ? " (vi)" : ""));
+		System.out.println("Primatelj:\t" + recipient + (userIBAN.equals(recipient) || username.equals(recipient) ? " (vi)" : ""));
+		System.out.println("Iznos:\t\t" + amount);
+		System.out.println("Datum:\t\t" + date);
 	}
 }

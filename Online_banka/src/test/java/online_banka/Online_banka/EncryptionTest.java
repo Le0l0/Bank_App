@@ -37,11 +37,11 @@ class EncryptionTest
 		assertTrue(tmpPassword.equals(password));
 	}
 	
-	@Test
-	@Order(02)
-	public void test_SHAEncryption() {
-		// TODO: kako testirati?		
-		assertTrue(true);
-	}
+//	@Test
+//	@Order(02)
+//	public void test_SHAEncryption() {
+//		// TODO: kako testirati?		
+//		assertTrue(true);
+//	}
 	
 }

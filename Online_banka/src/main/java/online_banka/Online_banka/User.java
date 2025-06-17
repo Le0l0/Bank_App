@@ -31,15 +31,15 @@ public class User
 	}
 	
 	// konstruktor koristen pri registraciji novog korisnika
-		public User(String username, String password, char encryption) {
-			this.username = username;
-			this.transactionList = new ArrayList<Transaction>();
-			try {
-				createFiles(password, encryption);
-			} catch (IOException e) {
-				System.out.println(e);
-			}
+	public User(String username, String password, char encryption) {
+		this.username = username;
+		this.transactionList = new ArrayList<Transaction>();
+		try {
+			createFiles(password, encryption);
+		} catch (IOException e) {
+			System.out.println(e);
 		}
+	}
 	
 	
 	
@@ -175,6 +175,38 @@ public class User
 	
 	
 	// uplata ili isplata na racun
+	public void makePayment() {
+		double payment = 0;
+		
+		// unos
+		while (true) {
+			String tmp = App.getInput("Unesite iznos uplate: ", 32, true);
+			try {
+				payment = Double.parseDouble(tmp);
+				break;
+			} catch (NumberFormatException e) {
+				System.out.println("Neispravan unos, pokusajte ponovo. ");
+			}
+		}
+		
+		BankAccount tmpAcc = BankAccount.getAccount(this);
+		
+		if (tmpAcc.balance + payment < 0) {
+			System.out.println("Isplata neuspjesna - nedovoljno novca na racunu. \n");
+			return;
+		}
+		
+		tmpAcc.balance += payment;
+		try {
+			tmpAcc.updateAccount(this);
+		} catch (IOException e) {
+			System.out.println(e);
+			return;
+		}
+		
+		System.out.println("Uplata/isplata uspjesna. \n");
+	}
+	
 	public void makePayment(double payment) {
 		BankAccount tmpAcc = BankAccount.getAccount(this);
 		
@@ -270,6 +302,7 @@ public class User
 		catch (IOException e) {
 			System.out.println("Nije moguce citati iz datoteke 'userIBANlist.txt'! ");
 		}
+		
 		if (recipientUsername != null) {
 			try(FileWriter writer = new FileWriter(recipientUsername + "_history.txt", true)) {
 				writer.write(userIBAN + "\n");

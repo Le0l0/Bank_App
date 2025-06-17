@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 
 
 
@@ -17,6 +18,7 @@ public class BankAccount
 	private static int lastIBAN = 0;
 	
 	
+	// konstruktori
 	public BankAccount() {
 		this.IBAN = null;
 		this.balance = 0;
@@ -60,16 +62,41 @@ public class BankAccount
 	
 	
 	
-//	// stvori userIBANlist.txt ako ne postoji
-//	public static void createNeccesaryFiles() {
-//		File userIBANlist = new File("userIBANlist.txt");
-//		
-//		try {
-//			userIBANlist.createNewFile();
-//		} catch (IOException e) {
-//			System.out.println("bo");
-//		}
-//	}
+	// metoda za brisanje IBAN-a i korisnickog imena iz datoteke 'userIBANlist.txt' kada korisnik brise svoj racun
+	public static void updateUserIBANList(String deletedUsername) {
+		ArrayList<String> updatedListIBANs = new ArrayList<String>();
+		ArrayList<String> updatedListUsernames = new ArrayList<String>();
+		
+		try (BufferedReader reader = new BufferedReader(new FileReader("userIBANlist.txt"))) {
+			String tmpUser = null;
+			String tmpIBAN = null;
+			
+			tmpIBAN = reader.readLine();
+			while (tmpIBAN != null && tmpIBAN.equals("") == false) {
+				tmpUser = reader.readLine();
+				
+				if (tmpUser.equals(deletedUsername) == false) {
+					updatedListIBANs.add(tmpIBAN);
+					updatedListUsernames.add(tmpUser);
+				}
+				
+				tmpIBAN = reader.readLine();
+			}
+		}
+		catch (IOException e) {
+			System.out.println("Nije moguce citati iz datoteke 'userIBANlist.txt'! Nesto nije dobro u updateUserIBANList! ");
+		}
+		
+		try (FileWriter writer = new FileWriter("userIBANlist.txt", false)) {
+			for (int i = 0; i < updatedListIBANs.size(); i++) {
+				writer.write(updatedListIBANs.get(i) + "\n");
+				writer.write(updatedListUsernames.get(i) + "\n");
+			}
+		}
+		catch (IOException e) {
+			System.out.println("Nije moguce pisati u datoteku 'userIBANlist.txt'! Nesto nije dobro u updateUserIBANList! ");
+		}
+	}
 	
 	
 	
@@ -105,7 +132,7 @@ public class BankAccount
 		}
 	}
 	
-	// azuriraj podatke o racunu koristeci samo username
+	// azuriraj podatke o racunu koristeci samo username i dodaj iznos 'amount' na racun
 	public static void updateAccount(String username, double amount) throws IOException {
 		String IBAN = null;
 		double balance = 0;

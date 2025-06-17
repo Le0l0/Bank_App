@@ -23,10 +23,9 @@ public class Encryption
 	// za AES
 	private static final int KEY_LENGTH = 256;
 	private static final int ITERATION_COUNT = 65536;
-	private static String secretKey = App.getSecretKey();
-	private static String salt = App.getSalt();
+	private static final String secretKey = App.getSecretKey();
+	private static final String salt = App.getSalt();
 
-	
 		
 	// AES ////////////////////////////////////////////////////////////////
 	// kod kopiran od HowToDoInJava
@@ -89,7 +88,6 @@ public class Encryption
 	}
 	
 	private static boolean testPasswordAES(String encryptedString) {
-		//return Encryption.decryptAES(encryptedString, Encryption.encryptMD5(string), Encryption.encryptMD5(string)) == null ? false : true;
 		return Encryption.decryptAES(encryptedString) == null ? false : true;
 	}
 	////////////////////////////////////////////////////////////////
@@ -123,6 +121,7 @@ public class Encryption
 	
 	
 	
+	// metoda koja ispituje odgovara li uneseni password onom zapisanom u korisnikovoj datoteci
 	public static boolean testPassword(String password, String ePassword) {
 		if (ePassword != null && (Encryption.testPasswordAES(ePassword) || Encryption.encryptSHA(password).equals(ePassword))) return true;
 		return false;

@@ -162,19 +162,9 @@ public class App
 			
 			// uplata
 			else if (choice == 'u') {
-				double paymentA = 0;
-				// unos
-				while (true) {
-					String tmp = getInput("Unesite iznos uplate: ", 32, true);
-					try {
-						paymentA = Double.parseDouble(tmp);
-						break;
-					} catch (NumberFormatException e) {
-						System.out.println("Neispravan unos, pokusajte ponovo. ");
-					}
-				}
-				// pokusaj uplate/isplate
-				user.makePayment(paymentA);
+				// pitaj korisnika da unese iznos koji zeli uplatiti/isplatiti, te ako je moguce azuriraj stanje racuna
+				// kod obavljanja uplate/isplate je odvojen u klasu "User" jer je metoda duga (i jer se odnosi na User-a)
+				user.makePayment();
 			}
 			
 			
@@ -221,10 +211,7 @@ public class App
 				// ispisi transakcije
 				String userIBAN = BankAccount.getAccount(user).IBAN;
 				for (Transaction transaction : user.transactionList) {
-					System.out.println("\nPlatitelj:\t" + transaction.payerIBAN + (userIBAN.equals(transaction.payerIBAN) ? " (vi)" : ""));
-					System.out.println("Primatelj:\t" + transaction.recipientIBAN + (userIBAN.equals(transaction.recipientIBAN) ? " (vi)" : ""));
-					System.out.println("Iznos:\t\t" + transaction.amount);
-					System.out.println("Datum:\t\t" + transaction.date);
+					transaction.printTransaction(userIBAN, user.username);
 				}
 				System.out.println();
 			}
@@ -233,7 +220,7 @@ public class App
 			else if (choice == 'l') {
 				// ucitaj tecajnu listu u staticki objekt klase ExchangeRate
 				try {
-					ExchangeRate.loadExchangerateList();
+					ExchangeRate.loadExchangeRateList();
 				} catch (URISyntaxException e) {
 					System.out.println("NEVALJANI LINK");
 				} catch (IOException e) {
@@ -263,6 +250,7 @@ public class App
 				
 				// tocan password - izbrisi korisnikove datoteke i izadi iz aplikacije
 				if (user.deleteFiles() == true) {
+					BankAccount.updateUserIBANList(user.username);
 					System.out.println("Podatci uspjesno izbrisani. ");
 				} else {
 					System.out.println("Doslo je do pogreske. ");

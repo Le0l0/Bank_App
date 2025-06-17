@@ -1,5 +1,6 @@
 package online_banka.Online_banka;
 
+// za JUnit testiranje
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeAll;
@@ -7,11 +8,10 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.TestMethodOrder;
-
+// ostalo
 import java.io.File;
 import java.util.Scanner;
 import java.io.IOException;
-import java.nio.file.Files;
 
 
 
@@ -27,19 +27,11 @@ class UserTest
 	private static String testRecipientPass = "234";
 	private static User userRecipient = null;
 	
-	private static File prevIBANlist = new File("prevIBANlist.txt");
-	private static File IBANlist = new File("userIBANlist.txt");
-	
 
 	
 	
 	@BeforeAll
 	public static void TEST_initialize() throws IOException {
-		if (IBANlist.exists() == true) {
-			//prevIBANlist.createNewFile();
-			Files.copy(IBANlist.toPath(), prevIBANlist.toPath());
-		}
-		
 		BankAccount.initializeIBAN();
 		
 		user = new User(testUsername, testPassword);
@@ -48,16 +40,11 @@ class UserTest
 	
 	@AfterAll
 	public static void TEST_clean_up() throws IOException {		
-		if (prevIBANlist.exists()) {
-			IBANlist.delete();
-			Files.copy(prevIBANlist.toPath(), IBANlist.toPath());
-			prevIBANlist.delete();
-		} else {
-			IBANlist.delete();
-		}
-		
 		userRecipient.deleteFiles();
-	}
+		
+		BankAccount.updateUserIBANList(testUsername);
+		BankAccount.updateUserIBANList(testRecipientName);
+}
 	
 	@Test
 	@Order(01)
@@ -152,6 +139,7 @@ class UserTest
         User userFail = User.registration();
         User userSuccess = User.registration();
         userSuccess.deleteFiles();
+        BankAccount.updateUserIBANList(userSuccess.username);
         
         assertAll(
 			"registration",

@@ -1,5 +1,6 @@
 package online_banka.Online_banka;
 
+// za JUnit testiranje
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeAll;
@@ -7,7 +8,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.TestMethodOrder;
-
+// ostalo
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -32,6 +33,7 @@ class BankAccountTest
 	@AfterAll
 	public static void TEST_cleaning_up() {
 		user.deleteFiles();
+		BankAccount.updateUserIBANList(user.username);
 	}
 	
 	@Test
@@ -74,7 +76,31 @@ class BankAccountTest
 		
 		bankAcc.IBAN = prevIBAN;
 		bankAcc.updateAccount(user);
-}
+	}
+	
+	@Test
+	@Order(04)
+	public void test_updateUserIBANList() throws IOException {
+		User user1 = new User("testUser1", "321");
+		
+		user1.deleteFiles();
+		BankAccount.updateUserIBANList("testUser1");
+		
+		boolean usernamePresent = false;
+		String tmpS = null;
+		BufferedReader reader = new BufferedReader(new FileReader("userIBANlist.txt"));
+		tmpS = reader.readLine();
+		while (tmpS != null && tmpS != "") {
+			if (tmpS.equals("testUser1") == true) {
+				usernamePresent = true;
+				break;
+			}
+			tmpS = reader.readLine();
+		}
+		reader.close();
+		
+		assertFalse(usernamePresent);
+	}
 	
 	@Test
 	@Order(100)

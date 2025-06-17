@@ -106,7 +106,6 @@ public class App
 	{
 		// postavi lastNumber(zadnji koristeni broj racuna) na odgovarajucu vrijednost kad se pokrene aplikacija
 		try {
-			//BankAccount.initializeLastNumber();
 			BankAccount.initializeIBAN();
 		} catch (IOException e) {
 			System.out.println(e + "\nNe mogu ocitati zadnji broj! ");
@@ -137,7 +136,6 @@ public class App
 
 		// glavna infinite petlja - menu aplikacije
 		char choice = '0';
-		//String input = null;
 		while (true) {
 			
 			// odabir opcije
@@ -158,7 +156,7 @@ public class App
 			else if (choice == 's') {
 				// dohvati racun prijavljenog korisnika i ispisi podatke
 				BankAccount account = BankAccount.getAccount(user);
-				System.out.printf("Broj racuna: %s\nStanje na racunu: %.2f %s\n\n", account.IBAN, account.balance, account.value);
+				System.out.printf("IBAN racuna: %s\nStanje na racunu: %.2f %s\n\n", account.IBAN, account.balance, account.value);
 			}
 			
 			
@@ -221,11 +219,12 @@ public class App
 				}
 				
 				// ispisi transakcije
+				String userIBAN = BankAccount.getAccount(user).IBAN;
 				for (Transaction transaction : user.transactionList) {
-					System.out.println("\nIBAN platitelja:\t" + transaction.payerIBAN);
-					System.out.println("IBAN primatelja:\t" + transaction.recipientIBAN);
-					System.out.println("Iznos:\t\t\t" + transaction.amount);
-					System.out.println("Datum:\t\t\t" + transaction.date);
+					System.out.println("\nPlatitelj:\t" + transaction.payerIBAN + (userIBAN.equals(transaction.payerIBAN) ? " (vi)" : ""));
+					System.out.println("Primatelj:\t" + transaction.recipientIBAN + (userIBAN.equals(transaction.recipientIBAN) ? " (vi)" : ""));
+					System.out.println("Iznos:\t\t" + transaction.amount);
+					System.out.println("Datum:\t\t" + transaction.date);
 				}
 				System.out.println();
 			}
@@ -286,10 +285,9 @@ public class App
 	public static void cleanUp() {
 		scanner.close();
 		try {
-			//BankAccount.writeLastNumber();
 			BankAccount.writeLastIBAN();
 		} catch (IOException e) {
-			System.out.println(e + "\nNe mogu zapisati zadnji broj ili zadnji iskoristeni IBAN! ");
+			System.out.println(e + "\nNe mogu zapisati zadnji iskoristeni IBAN! ");
 			return;
 		}
 		System.out.println("\n\n\nBye! ");

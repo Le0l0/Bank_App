@@ -14,7 +14,6 @@ public class BankAccount
 	String IBAN;
 	public double balance;
 	public String value;
-	//private static int lastNumber = 0;
 	private static int lastIBAN = 0;
 	
 	
@@ -29,35 +28,6 @@ public class BankAccount
 		this.balance = balance;
 		this.value = value;
 	}
-	
-	
-	
-//	// dohvati zadnji koristeni broj racuna, ili ako se nikad nije koristio stvori datoteku u koju se zapisuje
-//	public static void initializeLastNumber() throws IOException, NumberFormatException {
-//		File testfile = new File("lastNumber.txt");
-//		
-//		if (testfile.isFile() == true) {
-//			BufferedReader reader = new BufferedReader(new FileReader(testfile));
-//			lastNumber = Integer.parseInt(reader.readLine());
-//			reader.close();
-//		}
-//		else {
-//			FileWriter writer = new FileWriter("lastNumber.txt", false);
-//			lastNumber = 1;
-//			writer.write("1");
-//			writer.close();
-//		}
-//	}
-//	
-//	// zapisi zadnji koristeni broj racuna
-//	public static void writeLastNumber() throws IOException {
-//		FileWriter writer = new FileWriter("lastNumber.txt", false);
-//		writer.write(Integer.toString(lastNumber));
-//		writer.close();
-//	}
-//	
-//	// vraca novi broj 
-//	public static int getLastNumber() {return lastNumber++;}
 	
 	
 	
@@ -85,8 +55,21 @@ public class BankAccount
 		writer.close();
 	}
 	
-	// vraca niovi IBAN
+	// vraca novi IBAN
 	public static String getNewIBAN() {return "HR" + String.format("%032d", lastIBAN++);}
+	
+	
+	
+//	// stvori userIBANlist.txt ako ne postoji
+//	public static void createNeccesaryFiles() {
+//		File userIBANlist = new File("userIBANlist.txt");
+//		
+//		try {
+//			userIBANlist.createNewFile();
+//		} catch (IOException e) {
+//			System.out.println("bo");
+//		}
+//	}
 	
 	
 	
@@ -119,6 +102,33 @@ public class BankAccount
 			// zapisi nove podatke
 			writer.write(ePassword + "\n");
 			writer.write(IBAN + "\n" + balance + "\n" + value + "\n");
+		}
+	}
+	
+	// azuriraj podatke o racunu koristeci samo username
+	public static void updateAccount(String username, double amount) throws IOException {
+		String IBAN = null;
+		double balance = 0;
+		String value = null;
+		
+		// procitaj podatke o racunu
+		try (BufferedReader reader = new BufferedReader(new FileReader(username + ".txt"))) {
+			// preskoci lozinku
+			reader.readLine();
+			// procitaj podatke o racunu
+			IBAN = reader.readLine();
+			balance = Double.parseDouble(reader.readLine());
+			value = reader.readLine();
+		} catch (IOException | NumberFormatException e) {
+			System.out.println(e);
+		}
+		
+		// zapisi nove podatke
+		String ePassword = User.getEPassword(username);
+		try(FileWriter writer = new FileWriter(username + ".txt", false)) {
+			// zapisi nove podatke
+			writer.write(ePassword + "\n");
+			writer.write(IBAN + "\n" + (balance + amount) + "\n" + value + "\n");
 		}
 	}
 		

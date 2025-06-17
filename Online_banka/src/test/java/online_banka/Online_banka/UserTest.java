@@ -11,6 +11,7 @@ import org.junit.jupiter.api.TestMethodOrder;
 import java.io.File;
 import java.util.Scanner;
 import java.io.IOException;
+import java.nio.file.Files;
 
 
 
@@ -21,18 +22,41 @@ class UserTest
 	private static String testUsername = "testUser";
 	private static String testPassword = "123";
 	private static User user = null;
+	
+	private static String testRecipientName = "testRecipient";
+	private static String testRecipientPass = "234";
+	private static User userRecipient = null;
+	
+	private static File prevIBANlist = new File("prevIBANlist.txt");
+	private static File IBANlist = new File("userIBANlist.txt");
+	
 
 	
 	
 	@BeforeAll
 	public static void TEST_initialize() throws IOException {
+		if (IBANlist.exists() == true) {
+			//prevIBANlist.createNewFile();
+			Files.copy(IBANlist.toPath(), prevIBANlist.toPath());
+		}
+		
 		BankAccount.initializeIBAN();
+		
 		user = new User(testUsername, testPassword);
+		userRecipient = new User(testRecipientName, testRecipientPass);
 	}
 	
 	@AfterAll
-	public static void TEST_clean_up() {
-		new User("aaa").deleteFiles();
+	public static void TEST_clean_up() throws IOException {		
+		if (prevIBANlist.exists()) {
+			IBANlist.delete();
+			Files.copy(prevIBANlist.toPath(), IBANlist.toPath());
+			prevIBANlist.delete();
+		} else {
+			IBANlist.delete();
+		}
+		
+		userRecipient.deleteFiles();
 	}
 	
 	@Test
@@ -47,7 +71,6 @@ class UserTest
 	@Test
 	@Order(100)
 	public void test_deleteFiles() {
-		User user = new User(testUsername, testPassword);
 		File file = new File(user.username + ".txt");
 		File file_history = new File(user.username + "_history.txt");
 		user.deleteFiles();
@@ -92,12 +115,16 @@ class UserTest
 	public void test_makeTransaction() {
 		// postavljanje unosa
         App.scanner.close();
-        App.scanner = new Scanner("H R123\nHR123\n1 2 3\n-123\n10\n");
+        App.scanner = new Scanner("H R123\ntestRecipient\n1 2 3\n-123\n10\n");
         
         // testiranje
         user.makeTransaction();
         
-        assertEquals(90., BankAccount.getAccount(user).balance);
+        assertAll(
+    		"makeTransaction",
+    		() -> assertEquals(90., BankAccount.getAccount(user).balance),
+    		() -> assertEquals(10., BankAccount.getAccount(userRecipient).balance)
+    	);
 	}
 	
 	@Test
@@ -105,12 +132,18 @@ class UserTest
 	// ovisi o test_makeTransaction
 	public void test_loadTransactionList() {
 		user.loadTransactionList();
-		assertFalse(user.transactionList.isEmpty());
+		userRecipient.loadTransactionList();
+		
+		assertAll(
+			"loadTransactionList",
+			() -> assertFalse(user.transactionList.isEmpty()),
+			() -> assertTrue(userRecipient.transactionList.size() == 1)
+		);
 	}
 
 	@Test
 	@Order(11)
-	public void test_registration() {		
+	public void test_registration() {
 		// postavljanje unosa
         App.scanner.close();
         App.scanner = new Scanner("aaa\naa\na\ne\naaa\naa\na\nd\naaa\naaa\naaa\ns\n");
@@ -125,7 +158,6 @@ class UserTest
 			() -> assertNull(userFail),
 			() -> assertNotNull(userSuccess)
 		);
-        
 	}
 	
 	@Test

@@ -51,12 +51,21 @@ public class User
 			case 'a': writer.write(Encryption.encryptAES(password) + "\n"); break;
 			default : writer.write(Encryption.encryptSHA(password) + "\n"); break;
 			}
-			writer.write(BankAccount.getNewIBAN() + "\n" + 0 + "\n" + "EUR" + "\n");	// dalje su zapisani podatci o stanju racuna: broj racuna, stanje, valuta
+			// dalje su zapisani podatci o stanju racuna: broj racuna, stanje, valuta
+			writer.write(BankAccount.getNewIBAN() + "\n" + 0 + "\n" + "EUR" + "\n");
 		}
 		try {
 			File user_history = new File(username + "_history.txt");
 			user_history.createNewFile();
 		} finally {}
+		
+		// zapisi par korisnickog imena i IBAN-a u datoteku
+		try (FileWriter writer = new FileWriter("userIBANlist.txt", true)) {
+			writer.write(BankAccount.getAccount(this).IBAN + "\n" + this.username + "\n");
+		}
+		catch (IOException e) {
+			System.out.println("Nemoguce zapisati par korisnickog imena i IBAN-a u datoteku! ");
+		}
 	}
 	
 	// brisanje podataka o racunu
@@ -99,8 +108,10 @@ public class User
 			}
 		}
 		
-		choice = App.getChar("Odaberite koji tip enkripcije cete koristiti za lozinku. a - AES, s - SHA");
-		return new User(username, password, choice);
+		choice = App.getCharStrict("Odaberite koji tip enkripcije cete koristiti za lozinku. a - AES, s - SHA", "as");
+		User user = new User(username, password, choice);
+		
+		return user;
 	}
 	
 	
@@ -118,7 +129,7 @@ public class User
 			
 			// provjerimo je li unesena lozinka jednaka onoj koja je zapisana u korisnikovoj datoteci
 			EPassword = getEPassword(username);
-			if (Encryption.testPassword(passwordAttempt, EPassword) == true) break;
+			if (EPassword != null && Encryption.testPassword(passwordAttempt, EPassword) == true) break;
 			
 			// ako prijava nije uspjesna pokusaj ponovo ili izadi iz aplikacije
 			else {
@@ -188,19 +199,22 @@ public class User
 	// placanje
 	public void makeTransaction() {
 		String userIBAN = BankAccount.getAccount(this).IBAN;
-		String recipientIBAN = null;
+		String recipient = null;
 		double amount = 0;
 		
 		// unos IBAN-a
-		recipientIBAN = App.getInput("IBAN primatelja: ", 34, true);
+		recipient = App.getInput("IBAN ili korisnicko ime primatelja: ", 34, true);
 		
 		// unos iznosa placanja
 		while (true) {
 			String tmp = App.getInput("Iznos: ", 32, true);
 			try {
 				amount = Double.parseDouble(tmp);
-				if (amount <= 0) {
+				if (amount < 0) {
 					System.out.println("Neispravan unos, pokusajte ponovo. ");
+				} else if (amount == 0) {
+					System.out.println("Nemoguce izvrsiti transakciju kolicine 0. \n");
+					return;
 				} else break;
 			} catch (NumberFormatException e) {
 				System.out.println("Neispravan unos, pokusajte ponovo. ");
@@ -225,17 +239,56 @@ public class User
 			System.out.println(e);
 		}
 		
-		// zapisi transakciju u povijest transakcija
+		// zapisi transakciju u povijest transakcija platitelja
 		try(FileWriter writer = new FileWriter(username + "_history.txt", true)) {
 			writer.write(userIBAN + "\n");
-			writer.write(recipientIBAN + "\n");
+			writer.write(recipient + "\n");
 			writer.write(amount + "\n");
 			writer.write(LocalDate.now() + "\n\n");
 		} catch (IOException e) {
 			System.out.println(e);
 		}
 		
-		System.out.printf("Transakcija uspjesna. Uplaceno %.2f EUR na racun %s. \n", amount, recipientIBAN);
+		// provjeri ako u nasoj bazi podataka postoji korisnik sa IBAN-om primatelja, te ako da zapisi transakciju u njegovu povijest transakcija i azuriraj mu racun
+		String recipientUsername = null;
+		try (BufferedReader reader = new BufferedReader(new FileReader("userIBANlist.txt"))) {
+			String tmpUser = null;
+			String tmpIBAN = null;
+			
+			tmpIBAN = reader.readLine();
+			while (tmpIBAN != null && tmpIBAN.equals("") == false) {
+				tmpUser = reader.readLine();
+				
+				if (tmpIBAN.equals(recipient) == true || tmpUser.equals(recipient) == true) {
+					recipientUsername = tmpUser;
+					break;
+				}
+				
+				tmpIBAN = reader.readLine();
+			}
+		}
+		catch (IOException e) {
+			System.out.println("Nije moguce citati iz datoteke 'userIBANlist.txt'! ");
+		}
+		if (recipientUsername != null) {
+			try(FileWriter writer = new FileWriter(recipientUsername + "_history.txt", true)) {
+				writer.write(userIBAN + "\n");
+				writer.write(recipient + "\n");
+				writer.write(amount + "\n");
+				writer.write(LocalDate.now() + "\n\n");
+			} catch (IOException e) {
+				System.out.println(e);
+			}
+			
+			try {
+				BankAccount.updateAccount(recipientUsername, amount);
+			} catch (IOException e) {
+				System.out.println("Azuriranje racuna primatelja neuspjesno! ");
+			}
+		}
+		
+		// ispisi obavijest da je transakcija uspjesna
+		System.out.printf("Transakcija uspjesna. Uplaceno %.2f EUR na racun %s. \n", amount, recipient);
 	}
 	
 	
@@ -247,6 +300,7 @@ public class User
 		double amount = 0;
 		LocalDate date = null;
 		
+		// ocisti prijasnju listu
 		transactionList.clear();
 		
 		String tmpS = null;
@@ -262,7 +316,7 @@ public class User
 				transactionList.add(new Transaction(payerIBAN, recipientIBAN, amount, date));
 				
 				tmpS = reader.readLine();												// preskoci liniju
-				payerIBAN = reader.readLine();										// ucitaj sljedeci IBAN
+				payerIBAN = reader.readLine();											// ucitaj sljedeci IBAN
 			}
 		}
 		catch (IOException e) {

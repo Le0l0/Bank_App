@@ -12,6 +12,7 @@ import org.junit.jupiter.api.TestMethodOrder;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Scanner;
 
 
 
@@ -27,29 +28,39 @@ class BankAccountTest
 	
 	@BeforeAll
 	public static void TEST_initialize() {
-		// nista, usera treba kreirati tek nakon sto ne ucita "lastNumber", za sto imamo test
+		// nista, usera treba kreirati tek nakon sto ne ucita 'lastIBAN', za sto imamo test
 	}
 	
 	@AfterAll
 	public static void TEST_cleaning_up() {
+		// izbrisi korisnika
 		user.deleteFiles();
-		BankAccount.updateUserIBANList(user.username);
 	}
 	
 	@Test
 	@Order(01)
-	public void test_initializeLastNumber() throws IOException, NumberFormatException {
-		BankAccount.initializeIBAN();
-		assertNotEquals(null, BankAccount.getNewIBAN());
+	public void test_getNewIBAN() throws IOException, NumberFormatException {
+		String newIBAN = BankAccount.getNewIBAN();
+		
+		assertAll(
+    		"getNewIBAN",
+    		() -> assertNotEquals(null, newIBAN),
+    		() -> assertFalse(newIBAN.equals("HR" + String.format("%032d", 0)))
+    	);
 	}
 	
 	@Test
 	@Order(02)
 	public void test_getAccount() {
+		// postavljanje unosa
+        App.scanner.close();
+        App.scanner = new Scanner("100.\n");
+        
+        // testiranje
 		user = new User(testUsername, testPassword);
-		user.makePayment(100.);
+		user.makePayment();
 		
-        bankAcc = BankAccount.getAccount(user);
+        bankAcc = BankAccount.getAccount(user.username);
 
         assertAll(
     		"getAccount",
@@ -62,20 +73,30 @@ class BankAccountTest
 	@Order(03)
 	public void test_updateAccount() throws IOException {
 		String prevIBAN = bankAcc.IBAN;
+		double prevBalance = bankAcc.balance;
 		String prevValue = bankAcc.value;
+
 		bankAcc.IBAN = BankAccount.getNewIBAN();
-		
+		// treba azururati 2 puta posebno za testirati dvije metode jer je druga staticka i ne vidi promjenu IBAN-a(linija iznad)
 		bankAcc.updateAccount(user);
-		bankAcc = BankAccount.getAccount(user);
+		BankAccount.updateAccount(user.username, 10);
+		bankAcc = BankAccount.getAccount(user.username);
+		
+		
+		String newIBAN = bankAcc.IBAN;
+		double newBalance = bankAcc.balance;
+		String newValue = bankAcc.value;
+		
+		bankAcc.IBAN = prevIBAN;
+		bankAcc.balance = prevBalance;
+		bankAcc.updateAccount(user);
 		
 		assertAll(
 	    	"updateAccount",
-	    	() -> assertFalse(prevIBAN.equals(bankAcc.IBAN)),
-	    	() -> assertTrue(prevValue.equals(bankAcc.value))
+	    	() -> assertFalse(prevIBAN.equals(newIBAN)),
+	    	() -> assertEquals(prevBalance, newBalance - 10),
+	    	() -> assertTrue(prevValue.equals(newValue))
 	    );
-		
-		bankAcc.IBAN = prevIBAN;
-		bankAcc.updateAccount(user);
 	}
 	
 	@Test
@@ -83,9 +104,10 @@ class BankAccountTest
 	public void test_updateUserIBANList() throws IOException {
 		User user1 = new User("testUser1", "321");
 		
+		// metoda 'deleteFiles' poziva 'BankAccount.updateuserIBANList(username)'
 		user1.deleteFiles();
-		BankAccount.updateUserIBANList("testUser1");
 		
+		// provjeri nalazi li se jos uvijek korisnicko ime u datoteci
 		boolean usernamePresent = false;
 		String tmpS = null;
 		BufferedReader reader = new BufferedReader(new FileReader("userIBANlist.txt"));
@@ -100,29 +122,6 @@ class BankAccountTest
 		reader.close();
 		
 		assertFalse(usernamePresent);
-	}
-	
-	@Test
-	@Order(100)
-	public void test_writeLastIBAN() throws IOException {
-		String lastIBANBefore = null;
-		String lastIBANAfter = null;
-
-		
-		// procitaj lastNumber iz datoteke prije nego sta zapisemo novi
-		BufferedReader reader = new BufferedReader(new FileReader("lastIBAN.txt"));
-		lastIBANBefore = reader.readLine();
-		reader.close();
-
-		// zapisi novi lastNumber u datoteku
-		BankAccount.writeLastIBAN();
-		
-		// procitaj lastNumber iz datoteke nakon sta smo zapisali novi
-		reader = new BufferedReader(new FileReader("lastIBAN.txt"));
-		lastIBANAfter = reader.readLine();
-		reader.close();
-		
-		assertTrue(lastIBANBefore.equals(lastIBANAfter) == false && lastIBANBefore != null && lastIBANAfter != null);
 	}
 
 }

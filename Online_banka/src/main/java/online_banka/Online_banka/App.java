@@ -73,27 +73,11 @@ public class App
 		User user = null;
 		
 		// prijava ili registracija u sustav
-		while (true) {
-			
-			choice = getCharStrict("r - registracija, p - prijava, e - izlaz", "rpe");
-			
-			// registracija
-			if (choice == 'r') {
-				user = User.registration();
-				break;
-			}
-			
-			// prijava
-			else if (choice == 'p') {
-				user = User.login();
-				break;
-			}
-			
-			// izlaz
-			else if (choice == 'e') {
-				break;
-			}
-		}
+		choice = getCharStrict("r - registracija, p - prijava, e - izlaz", "rpe");
+		// registracija
+		if (choice == 'r') user = User.registration();
+		// prijava
+		else if (choice == 'p') user = User.login();
 		
 		return user;
 	}
@@ -104,15 +88,6 @@ public class App
 	// main program aplikacije
 	public static void main(String[] args)
 	{
-		// postavi lastNumber(zadnji koristeni broj racuna) na odgovarajucu vrijednost kad se pokrene aplikacija
-		try {
-			BankAccount.initializeIBAN();
-		} catch (IOException e) {
-			System.out.println(e + "\nNe mogu ocitati zadnji broj! ");
-			return;
-		}
-		
-		
 		// naslov
 		System.out.println();
 		System.out.println("################################################################");
@@ -141,7 +116,7 @@ public class App
 			// odabir opcije
 			choice = getCharStrict("\ne - odjava, s - stanje racuna, u - uplati/isplati novac, p - placanje, t - popis transakcija, l - prikaz tecajne liste, b - brisanje racuna\n", "esuptlb");
 			
-			
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			// odjava
 			if (choice == 'e') {
 				// pitaj korisnika je li siguran
@@ -151,15 +126,15 @@ public class App
 				}
 			}
 			
-			
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			// stanje racuna
 			else if (choice == 's') {
 				// dohvati racun prijavljenog korisnika i ispisi podatke
-				BankAccount account = BankAccount.getAccount(user);
+				BankAccount account = BankAccount.getAccount(user.username);
 				System.out.printf("IBAN racuna: %s\nStanje na racunu: %.2f %s\n\n", account.IBAN, account.balance, account.value);
 			}
 			
-			
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			// uplata
 			else if (choice == 'u') {
 				// pitaj korisnika da unese iznos koji zeli uplatiti/isplatiti, te ako je moguce azuriraj stanje racuna
@@ -167,7 +142,7 @@ public class App
 				user.makePayment();
 			}
 			
-			
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			// placanje
 			else if (choice == 'p') {
 				// obavi transakciju i zapisi je u povijest transakcija korisnika (ako je dovoljno novca na racunu)
@@ -175,7 +150,7 @@ public class App
 				user.makeTransaction();
 			}
 			
-			
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			// popis transakcija
 			else if (choice == 't') {
 				// spremi sve transakcije u jednu listu za lakse sortiranje
@@ -185,7 +160,8 @@ public class App
 					continue;
 				}
 				
-				// pitaj korisnika kako zeli sortirati
+				// pitaj korisnika kako zeli sortirati - u datoteci su transakcije vec zapisane od najstarijih prema
+				// najnovijima, tako da ih sortiramo samo ako korisnik odabere da su sortirane po velicini
 				choice = getCharStrict("Zelite li ih sortirane prema datumu ili iznosu? \nd - po datumu, i - po iznosu", "di");
 				
 				// po datumu
@@ -197,11 +173,11 @@ public class App
 					}
 				}
 				// po iznosu
-				else if (choice == 'i') {
+				else {
 					// sortiraj po iznosu
 					user.transactionList.sort(new TransactionComparator());
 					
-					choice = getCharStrict("Zelite li ih sortirane od najvecih prema najmanjima ili obrnuto? \nn - od najvacih, o - obrnuto", "no");
+					choice = getCharStrict("Zelite li ih sortirane od najvecih prema najmanjima ili obrnuto? \nn - od najvecih, o - obrnuto", "no");
 					// okreni poredak ako treba
 					if (choice == 'o') {
 						Collections.reverse(user.transactionList);
@@ -209,13 +185,14 @@ public class App
 				}
 				
 				// ispisi transakcije
-				String userIBAN = BankAccount.getAccount(user).IBAN;
+				String userIBAN = BankAccount.getAccount(user.username).IBAN;
 				for (Transaction transaction : user.transactionList) {
 					transaction.printTransaction(userIBAN, user.username);
 				}
 				System.out.println();
 			}
 			
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			// tecajna lista
 			else if (choice == 'l') {
 				// ucitaj tecajnu listu u staticki objekt klase ExchangeRate
@@ -232,8 +209,8 @@ public class App
 				}
 			}
 			
-			
-			// tecajna lista
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+			// brisanje racuna
 			else if (choice == 'b') {
 				// pitaj korisnika je li siguran
 				choice = App.getCharStrict("Jeste li sigurni da zelite izbrisati vas racun i sve podatke o stanju i transakcijama? d/n", "dn");
@@ -250,7 +227,6 @@ public class App
 				
 				// tocan password - izbrisi korisnikove datoteke i izadi iz aplikacije
 				if (user.deleteFiles() == true) {
-					BankAccount.updateUserIBANList(user.username);
 					System.out.println("Podatci uspjesno izbrisani. ");
 				} else {
 					System.out.println("Doslo je do pogreske. ");
@@ -272,12 +248,6 @@ public class App
 	// pospremanje
 	public static void cleanUp() {
 		scanner.close();
-		try {
-			BankAccount.writeLastIBAN();
-		} catch (IOException e) {
-			System.out.println(e + "\nNe mogu zapisati zadnji iskoristeni IBAN! ");
-			return;
-		}
 		System.out.println("\n\n\nBye! ");
 	}
 	

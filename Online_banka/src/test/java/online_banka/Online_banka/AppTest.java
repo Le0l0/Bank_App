@@ -34,9 +34,11 @@ class AppTest
 	@Test
 	@Order(01)
 	public void test_getInput() {
+		// postavljanje unosa
 		App.scanner.close();
 		App.scanner = new Scanner("ab cd\n\nabcd\nabc\na b\n");
 		
+		// testiranje
 		String inputNoSpace = App.getInput("test", 3, true);
 		String inputSpace = App.getInput("test", 3, false);
 		
@@ -50,30 +52,27 @@ class AppTest
 	@Test
 	@Order(02)
 	public void test_getChar() {
+		// postavljanje unosa
 		App.scanner.close();
 		App.scanner = new Scanner("ab\n\nB\n");
 		
+		// testiranje
 		char input = App.getChar("test");
 		
 		assertEquals('b', input);
 	}
 	
 	@Test
-	@Order(02)
+	@Order(03)
 	public void test_getCharStrict() {
+		// postavljanje unosa
 		App.scanner.close();
 		App.scanner = new Scanner("bC\n\nb\nA\n");
 		
+		// testiranje
 		char input = App.getCharStrict("test", "a");
 		
 		assertEquals('a', input);
-	}
-	
-	@Test
-	@Order(100)
-	public void test_App() {
-		//App.main(null);
-		assertTrue(true);
 	}
 
 }

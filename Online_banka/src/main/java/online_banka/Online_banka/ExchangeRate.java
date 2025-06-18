@@ -88,9 +88,10 @@ public class ExchangeRate
         	char tmpChar = '0';
         	ExchangeRate rate = new ExchangeRate();
         	
+    		// citaj sve segmente i zapisuj u objekt "rate", te na kraju "rate" dodaj u ArrayList
+        	// nefleksibilan kod, mozda bolje koristiti neku knjiznicu!
         	while (reader.read() != ']') {
         		
-        		// citaj sve segmente i zapisuj u objekt "rate", te na kraju "rate" dodaj u ArrayList
     			reader.skip(19);
     			
     			reader.read(cBuffer, 0, 3);
@@ -156,6 +157,7 @@ public class ExchangeRate
 
 	
 
+	// ispisi podatke o 'ExchangeRate-u'
 	public void printExchangeRate() {
 		System.out.println("Valuta: " + valuta + ", drzava: " + drzava + " - " + drzava_iso);
 		System.out.println("Datum primjene:\t" + datum_primjene);

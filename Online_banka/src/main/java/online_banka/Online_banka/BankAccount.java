@@ -15,7 +15,7 @@ public class BankAccount
 	String IBAN;
 	public double balance;
 	public String value;
-	private static int lastIBAN = 0;
+	private static int lastIBAN = -1;
 	
 	
 	// konstruktori
@@ -33,8 +33,8 @@ public class BankAccount
 	
 	
 	
-	// isto kao za lastNumber, samo za IBAN
-	public static void initializeIBAN() throws IOException, NumberFormatException {
+	// ucitaj zadnji koristeni IBAN iz memeorije u staticku varijablu 'lastIBAN'
+	private static void loadLastIBAN() throws IOException, NumberFormatException {
 		File testfile = new File("lastIBAN.txt");
 		
 		if (testfile.isFile() == true) {
@@ -50,23 +50,47 @@ public class BankAccount
 		}
 	}
 	
-	// isto kao za lastNumber, samo za IBAN
-	public static void writeLastIBAN() throws IOException {
+	// zapisi zadnji koristeni IBAN u "lastIBAN.txt"
+	private static void writeLastIBAN() throws IOException {
 		FileWriter writer = new FileWriter("lastIBAN.txt", false);
 		writer.write(Integer.toString(lastIBAN));
 		writer.close();
 	}
 	
 	// vraca novi IBAN
-	public static String getNewIBAN() {return "HR" + String.format("%032d", lastIBAN++);}
+	public static String getNewIBAN() {		
+		// ucitaj IBAN u 'lastIBAN' ako vec nije
+		if (lastIBAN == -1) {
+			try {
+				loadLastIBAN();
+			} catch (IOException e) {
+				lastIBAN = 0;
+				System.out.println("Nemoguce ocitati zadnji IBAN! ");
+			}
+		}
+		
+		lastIBAN++;
+		
+		// odmah zapisi novi zanji koristeni IBAN
+		try {
+			writeLastIBAN();
+		} catch (IOException e) {
+			System.out.println("Nemoguce zapisati zadnji IBAN! ");
+		}
+		
+		// vrati novi IBAN u obliku Stringa
+		return "HR" + String.format("%032d", lastIBAN);
+	}
 	
 	
 	
-	// metoda za brisanje IBAN-a i korisnickog imena iz datoteke 'userIBANlist.txt' kada korisnik brise svoj racun
+	// metoda za brisanje IBAN-a i korisnickog imena iz datoteke "userIBANlist.txt" kada korisnik brise svoj racun
 	public static void updateUserIBANList(String deletedUsername) {
+		// dvije liste: jedna za IBAN-ove korisnika, jedna za korisnicka imena
 		ArrayList<String> updatedListIBANs = new ArrayList<String>();
 		ArrayList<String> updatedListUsernames = new ArrayList<String>();
 		
+		// ucitavaj podatke iz "userIBANlist.txt" samo ako korisnicko ime nije jednako onom koje zelimo izbrisati
 		try (BufferedReader reader = new BufferedReader(new FileReader("userIBANlist.txt"))) {
 			String tmpUser = null;
 			String tmpIBAN = null;
@@ -87,6 +111,7 @@ public class BankAccount
 			System.out.println("Nije moguce citati iz datoteke 'userIBANlist.txt'! Nesto nije dobro u updateUserIBANList! ");
 		}
 		
+		// zapisi liste u "userIBANlist.txt" koje ne sadrze podatke o izbrisanom korisniku
 		try (FileWriter writer = new FileWriter("userIBANlist.txt", false)) {
 			for (int i = 0; i < updatedListIBANs.size(); i++) {
 				writer.write(updatedListIBANs.get(i) + "\n");
@@ -101,12 +126,12 @@ public class BankAccount
 	
 	
 	// dohvati podatke o racunu
-	public static BankAccount getAccount(User user) {
+	public static BankAccount getAccount(String username) {
 		String IBAN = null;
 		double balance = 0;		
 		String value = null;
 		
-		try (BufferedReader reader = new BufferedReader(new FileReader(user.username + ".txt"))) {
+		try (BufferedReader reader = new BufferedReader(new FileReader(username + ".txt"))) {
 			// preskoci lozinku
 			reader.readLine();
 			// procitaj podatke o racunu
@@ -132,31 +157,23 @@ public class BankAccount
 		}
 	}
 	
-	// azuriraj podatke o racunu koristeci samo username i dodaj iznos 'amount' na racun
-	public static void updateAccount(String username, double amount) throws IOException {
-		String IBAN = null;
-		double balance = 0;
-		String value = null;
-		
-		// procitaj podatke o racunu
-		try (BufferedReader reader = new BufferedReader(new FileReader(username + ".txt"))) {
-			// preskoci lozinku
-			reader.readLine();
-			// procitaj podatke o racunu
-			IBAN = reader.readLine();
-			balance = Double.parseDouble(reader.readLine());
-			value = reader.readLine();
-		} catch (IOException | NumberFormatException e) {
-			System.out.println(e);
-		}
-		
-		// zapisi nove podatke
+	public void updateAccount(String username) throws IOException {
 		String ePassword = User.getEPassword(username);
 		try(FileWriter writer = new FileWriter(username + ".txt", false)) {
 			// zapisi nove podatke
 			writer.write(ePassword + "\n");
-			writer.write(IBAN + "\n" + (balance + amount) + "\n" + value + "\n");
+			writer.write(IBAN + "\n" + balance + "\n" + value + "\n");
 		}
+	}
+	
+	// azuriraj podatke o racunu koristeci samo username i dodaj iznos 'amount' na racun
+	public static void updateAccount(String username, double amount) throws IOException {
+		// dohvati racun
+		BankAccount bankAcc = getAccount(username);
+		// dodaj 'amount'
+		bankAcc.balance += amount;
+		// zapisi nove podatke
+		bankAcc.updateAccount(username);
 	}
 		
 }

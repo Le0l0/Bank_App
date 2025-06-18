@@ -13,13 +13,13 @@ public class User
 	ArrayList<Transaction> transactionList = null;
 	
 
-	// normalan konstruktor
+	// normalan konstruktor - koristen kada se vecpostojeci korisnik ulogira u aplikaciju
 	public User(String username) {
 		this.username = username;
 		this.transactionList = new ArrayList<Transaction>();
 	}
 	
-	// konstruktor koristen pri registraciji novog korisnika
+	// konstruktor - koristen pri registraciji novog korisnika bez specificirane enkripcije lozinke
 	public User(String username, String password) {
 		this.username = username;
 		this.transactionList = new ArrayList<Transaction>();
@@ -30,7 +30,7 @@ public class User
 		}
 	}
 	
-	// konstruktor koristen pri registraciji novog korisnika
+	// konstruktor - koristen pri registraciji novog korisnika
 	public User(String username, String password, char encryption) {
 		this.username = username;
 		this.transactionList = new ArrayList<Transaction>();
@@ -43,38 +43,46 @@ public class User
 	
 	
 	
-	// kreiranje datoteka za spremanje podataka o korisniku i njegovom racunu
+	// kreiranje datoteka za spremanje podataka o korisniku i njegovom racunu, te zapisivanje IBAN-a i korisnickog imena u listu
 	public void createFiles(String password, char encryption) throws IOException {
-		try (FileWriter writer = new FileWriter(username + ".txt", false)) {
-			// prva linija je enkriptirana lozinka
-			switch (encryption) {
-			case 'a': writer.write(Encryption.encryptAES(password) + "\n"); break;
-			default : writer.write(Encryption.encryptSHA(password) + "\n"); break;
-			}
-			// dalje su zapisani podatci o stanju racuna: broj racuna, stanje, valuta
-			writer.write(BankAccount.getNewIBAN() + "\n" + 0 + "\n" + "EUR" + "\n");
-		}
-		try {
-			File user_history = new File(username + "_history.txt");
-			user_history.createNewFile();
-		} finally {}
+		FileWriter writer = null;
+		// stvori korisnikovu datoteku
+		writer = new FileWriter(username + ".txt", false);
+		// prva linija je enkriptirana lozinka
+		if (encryption == 'a') writer.write(Encryption.encryptAES(password) + "\n");
+		else writer.write(Encryption.encryptSHA(password) + "\n");
+		// dalje su zapisani podatci o stanju racuna: broj racuna, stanje, valuta
+		writer.write(BankAccount.getNewIBAN() + "\n" + 0 + "\n" + "EUR" + "\n");
+		writer.close();
+	
+		// kreiraj datoteku u koju ce se zapisivati sve transakcije sa ili na korisnikov racun
+		File user_history = new File(username + "_history.txt");
+		user_history.createNewFile();
 		
 		// zapisi par korisnickog imena i IBAN-a u datoteku
-		try (FileWriter writer = new FileWriter("userIBANlist.txt", true)) {
-			writer.write(BankAccount.getAccount(this).IBAN + "\n" + this.username + "\n");
-		}
-		catch (IOException e) {
-			System.out.println("Nemoguce zapisati par korisnickog imena i IBAN-a u datoteku! ");
-		}
+		writer = new FileWriter("userIBANlist.txt", true);
+		writer.write(BankAccount.getAccount(this.username).IBAN + "\n" + this.username + "\n");
+		writer.close();
 	}
 	
-	// brisanje podataka o racunu
+	// brisanje podataka o racunu (korisnikovih datoteka)
 	public boolean deleteFiles() {
 		File userFile = new File(username + ".txt");
-		File user_historyFile = new File(username + "_history.txt");
+		File userHistoryFile = new File(username + "_history.txt");
 				
-		//boolean ret = user.delete() & user_history.delete();
-		return userFile.delete() & user_historyFile.delete();		
+		boolean ret = userFile.delete() & userHistoryFile.delete();
+		// ako su datoteke uspjesno izbrisane, izbrisi korisnicko ime i IBAN iz liste
+		if (ret == true) BankAccount.updateUserIBANList(username);
+		
+		return ret;		
+	}
+	
+	
+	
+	// provjera postoji li korisnik s unesenim korisnickim imenom
+	public static boolean userExists(String username) {
+		File userFile = new File(username + ".txt");
+		return userFile.exists();
 	}
 	
 	
@@ -88,7 +96,7 @@ public class User
 		while (true) {
 			// unos korisnickog imena i lozinke
 			username = App.getInput("Username: ", 32, true);
-			if (getEPassword(username) != null) {
+			if (userExists(username) == true) {
 				System.out.println("Ovo korisnicko ime je zauzeto, uneste neko drugo. ");
 				continue;
 			}
@@ -118,9 +126,8 @@ public class User
 	
 	// prijava korisnika
 	public static User login() {
-		String username;
-		String passwordAttempt;
-		String EPassword;
+		String username = null;
+		String passwordAttempt = null;
 		
 		while (true) {
 			// unos korisnickog imena i lozinke
@@ -128,15 +135,14 @@ public class User
 			passwordAttempt = App.getInput("Password: ", 32, false);
 			
 			// provjerimo je li unesena lozinka jednaka onoj koja je zapisana u korisnikovoj datoteci
-			EPassword = getEPassword(username);
-			if (EPassword != null && Encryption.testPassword(passwordAttempt, EPassword) == true) break;
-			
+			if (userExists(username) == true && Encryption.testPassword(passwordAttempt, getEPassword(username)) == true)
+				break;
 			// ako prijava nije uspjesna pokusaj ponovo ili izadi iz aplikacije
 			else {
 				char choice = App.getChar("Korisnicko ime ili lozinka su pogresni, unesite 'e' za izlaz iz aplikacije ili bilo koji drugi znak kako bi ponovo pokusali. ");
-				if (choice == 'e') {				// izlaz
+				// izlaz
+				if (choice == 'e')
 					return null;
-				}
 			}
 			
 		}
@@ -146,8 +152,7 @@ public class User
 	
 	
 	
-	// dohvati enkriptiranu lozinku:
-	// provjeravamo postoji li korisnik pod imenom 'username', te ako da vracamo enkriptiranu lozinku
+	// dohvati enkriptiranu lozinku
 	public String getEPassword() {
 		String EPassword = null;
 		
@@ -166,7 +171,7 @@ public class User
 		try (BufferedReader reader = new BufferedReader(new FileReader(username + ".txt"))) {
 			EPassword = reader.readLine();
 		} catch (IOException e) {
-			//System.out.println(e);
+			System.out.println(e);
 		}
 		
 		return EPassword;
@@ -178,7 +183,7 @@ public class User
 	public void makePayment() {
 		double payment = 0;
 		
-		// unos
+		// unos kolicine
 		while (true) {
 			String tmp = App.getInput("Unesite iznos uplate: ", 32, true);
 			try {
@@ -189,48 +194,31 @@ public class User
 			}
 		}
 		
-		BankAccount tmpAcc = BankAccount.getAccount(this);
-		
+		// ako ce stanje racuna poslije isplate biti manje od nula, korisnik nema dovoljno novca za isplatu
+		BankAccount tmpAcc = BankAccount.getAccount(this.username);
 		if (tmpAcc.balance + payment < 0) {
 			System.out.println("Isplata neuspjesna - nedovoljno novca na racunu. \n");
 			return;
 		}
 		
+		// azururaj racun ako sve valja
 		tmpAcc.balance += payment;
 		try {
 			tmpAcc.updateAccount(this);
 		} catch (IOException e) {
-			System.out.println(e);
+			System.out.println("Nije moguce izvrsiti uplatu/isplatu! ");
 			return;
 		}
 		
 		System.out.println("Uplata/isplata uspjesna. \n");
 	}
-	
-	public void makePayment(double payment) {
-		BankAccount tmpAcc = BankAccount.getAccount(this);
-		
-		if (tmpAcc.balance + payment < 0) {
-			System.out.println("Isplata neuspjesna - nedovoljno novca na racunu. \n");
-			return;
-		}
-		
-		tmpAcc.balance += payment;
-		try {
-			tmpAcc.updateAccount(this);
-		} catch (IOException e) {
-			System.out.println(e);
-			return;
-		}
-		
-		System.out.println("Uplata/isplata uspjesna. \n");
-	}
+
 	
 	
 	
 	// placanje
 	public void makeTransaction() {
-		String userIBAN = BankAccount.getAccount(this).IBAN;
+		String userIBAN = BankAccount.getAccount(this.username).IBAN;
 		String recipient = null;
 		double amount = 0;
 		
@@ -242,20 +230,22 @@ public class User
 			String tmp = App.getInput("Iznos: ", 32, true);
 			try {
 				amount = Double.parseDouble(tmp);
-				if (amount < 0) {
-					System.out.println("Neispravan unos, pokusajte ponovo. ");
-				} else if (amount == 0) {
-					System.out.println("Nemoguce izvrsiti transakciju kolicine 0. \n");
-					return;
-				} else break;
+				if (amount < 0)
+					throw new NumberFormatException();
+				else break;
 			} catch (NumberFormatException e) {
 				System.out.println("Neispravan unos, pokusajte ponovo. ");
 			}
 		}
 		
+		// ako je korisnik unesao 0 vrati ga u main program
+		if (amount == 0) {
+			System.out.println("Nemoguce izvrsiti transakciju iznosa 0. ");
+			return;
+		}
 		
 		// dohvati podatke o racunu
-		BankAccount account = BankAccount.getAccount(this);
+		BankAccount account = BankAccount.getAccount(this.username);
 		
 		// ako nema dovoljno novaca transakciju nije moguce izvrsiti
 		if (account.balance < amount) {
@@ -263,7 +253,7 @@ public class User
 			return;
 		}
 		
-		// ako ima dovoljno novaca, odmah oduzmi s racuna i spremi promjenu
+		// oduzmi kolicinu s racuna i spremi promjenu
 		account.balance -= amount;
 		try {
 			account.updateAccount(this);
@@ -281,7 +271,7 @@ public class User
 			System.out.println(e);
 		}
 		
-		// provjeri ako u nasoj bazi podataka postoji korisnik sa IBAN-om primatelja, te ako da zapisi transakciju u njegovu povijest transakcija i azuriraj mu racun
+		// provjeri ako u nasoj bazi podataka postoji korisnik sa IBAN-om primatelja
 		String recipientUsername = null;
 		try (BufferedReader reader = new BufferedReader(new FileReader("userIBANlist.txt"))) {
 			String tmpUser = null;
@@ -302,7 +292,7 @@ public class User
 		catch (IOException e) {
 			System.out.println("Nije moguce citati iz datoteke 'userIBANlist.txt'! ");
 		}
-		
+		// ako postoji korisnik sa IBAN-om primatelja zapisi transakciju u njegovu povijest transakcija i dodaj iznos na njegov racun
 		if (recipientUsername != null) {
 			try(FileWriter writer = new FileWriter(recipientUsername + "_history.txt", true)) {
 				writer.write(userIBAN + "\n");
@@ -336,6 +326,7 @@ public class User
 		// ocisti prijasnju listu
 		transactionList.clear();
 		
+		// ucitavaj transakcije iz datoteke u 'transactionList'
 		String tmpS = null;
 		try (BufferedReader reader = new BufferedReader(new FileReader(username + "_history.txt"))) {
 			payerIBAN = reader.readLine();
@@ -348,8 +339,10 @@ public class User
 				
 				transactionList.add(new Transaction(payerIBAN, recipientIBAN, amount, date));
 				
-				tmpS = reader.readLine();												// preskoci liniju
-				payerIBAN = reader.readLine();											// ucitaj sljedeci IBAN
+				// preskoci liniju
+				tmpS = reader.readLine();
+				// ucitaj sljedeci IBAN
+				payerIBAN = reader.readLine();
 			}
 		}
 		catch (IOException e) {

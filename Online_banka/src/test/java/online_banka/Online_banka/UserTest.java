@@ -32,18 +32,15 @@ class UserTest
 	
 	@BeforeAll
 	public static void TEST_initialize() throws IOException {
-		BankAccount.initializeIBAN();
-		
+		// stvori korisnike
 		user = new User(testUsername, testPassword);
 		userRecipient = new User(testRecipientName, testRecipientPass);
 	}
 	
 	@AfterAll
-	public static void TEST_clean_up() throws IOException {		
+	public static void TEST_clean_up() throws IOException {
+		// izbrisi korisnika (user je izbrisan u testu za 'deleteFiles')
 		userRecipient.deleteFiles();
-		
-		BankAccount.updateUserIBANList(testUsername);
-		BankAccount.updateUserIBANList(testRecipientName);
 }
 	
 	@Test
@@ -58,9 +55,9 @@ class UserTest
 	@Test
 	@Order(100)
 	public void test_deleteFiles() {
+		user.deleteFiles();
 		File file = new File(user.username + ".txt");
 		File file_history = new File(user.username + "_history.txt");
-		user.deleteFiles();
 		assertFalse(file.exists() && file_history.exists());
 	}
 	
@@ -80,14 +77,17 @@ class UserTest
 	@Test
 	@Order(03)
 	public void test_makePayment() {
-		user.makePayment(101.);
-		double balance0 = BankAccount.getAccount(user).balance;
+		// postavljanje unosa
+        App.scanner.close();
+        App.scanner = new Scanner("101.\n-1000.\n-1.\n");
 		
-		user.makePayment(-1000.);
-		double balance1 = BankAccount.getAccount(user).balance;		
-		
-		user.makePayment(-1.);
-		double balance2 = BankAccount.getAccount(user).balance;
+        // testiranje
+		user.makePayment();
+		double balance0 = BankAccount.getAccount(user.username).balance;
+		user.makePayment();
+		double balance1 = BankAccount.getAccount(user.username).balance;		
+		user.makePayment();
+		double balance2 = BankAccount.getAccount(user.username).balance;
 		
 		assertAll(
 			"makePayment",
@@ -109,8 +109,8 @@ class UserTest
         
         assertAll(
     		"makeTransaction",
-    		() -> assertEquals(90., BankAccount.getAccount(user).balance),
-    		() -> assertEquals(10., BankAccount.getAccount(userRecipient).balance)
+    		() -> assertEquals(90., BankAccount.getAccount(user.username).balance),
+    		() -> assertEquals(10., BankAccount.getAccount(userRecipient.username).balance)
     	);
 	}
 	
@@ -139,7 +139,6 @@ class UserTest
         User userFail = User.registration();
         User userSuccess = User.registration();
         userSuccess.deleteFiles();
-        BankAccount.updateUserIBANList(userSuccess.username);
         
         assertAll(
 			"registration",

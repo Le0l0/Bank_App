@@ -29,7 +29,7 @@ public class Encryption
 		
 	// AES ////////////////////////////////////////////////////////////////
 	// kod kopiran od HowToDoInJava
-	public static String encryptAES(String strToEncrypt) {
+	static String encryptAES(String strToEncrypt) {
 		try {
 	        SecureRandom secureRandom = new SecureRandom();
 	        byte[] iv = new byte[16];
@@ -57,7 +57,7 @@ public class Encryption
 		}
 	}
 	
-	public static String decryptAES(String strToDecrypt) {
+	static String decryptAES(String strToDecrypt) {
 	    try {
 	        byte[] encryptedData = Base64.getDecoder().decode(strToDecrypt);
 	        byte[] iv = new byte[16];
@@ -96,7 +96,7 @@ public class Encryption
 	
 	// SHA ////////////////////////////////////////////////////////////////
 	// kopirano od GeeksForGeeks, malo modificirano
-	public static String encryptSHA(String input) {
+	static String encryptSHA(String input) {
         try {
         	// Static getInstance method is called with hashing SHA
             MessageDigest md = MessageDigest.getInstance("SHA-256");

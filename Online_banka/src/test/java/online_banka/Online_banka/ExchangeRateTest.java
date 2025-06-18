@@ -43,6 +43,7 @@ class ExchangeRateTest
 	
 	@Test
 	@Order(01)
+	// konstruktori
 	public void test_ExchangeRate() {
 		ExchangeRate eRate = new ExchangeRate();
 		ExchangeRate eRateFilled = new ExchangeRate(broj_tecajnice, datum_primjene, drzava, drzava_iso, kupovni_tecaj, prodajni_tecaj, sifra_valute, srednji_tecaj, valuta);

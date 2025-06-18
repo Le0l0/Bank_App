@@ -7,12 +7,18 @@ import java.util.ArrayList;
 
 
 
-public class User
+class User
 {
 	String username;
-	ArrayList<Transaction> transactionList = null;
+	final ArrayList<Transaction> transactionList;
 	
 
+	// prazan konstruktor
+	public User() {
+		this.username = "-";
+		this.transactionList = null;
+	}
+	
 	// normalan konstruktor - koristen kada se vecpostojeci korisnik ulogira u aplikaciju
 	public User(String username) {
 		this.username = username;
@@ -44,7 +50,7 @@ public class User
 	
 	
 	// kreiranje datoteka za spremanje podataka o korisniku i njegovom racunu, te zapisivanje IBAN-a i korisnickog imena u listu
-	public void createFiles(String password, char encryption) throws IOException {
+	private void createFiles(String password, char encryption) throws IOException {
 		FileWriter writer = null;
 		// stvori korisnikovu datoteku
 		writer = new FileWriter(username + ".txt", false);
@@ -66,7 +72,7 @@ public class User
 	}
 	
 	// brisanje podataka o racunu (korisnikovih datoteka)
-	public boolean deleteFiles() {
+	boolean deleteFiles() {
 		File userFile = new File(username + ".txt");
 		File userHistoryFile = new File(username + "_history.txt");
 				
@@ -88,7 +94,7 @@ public class User
 	
 	
 	// registracija korisnika
-	public static User registration() {
+	static User registration() {
 		String username = null;
 		String password = null;
 		char choice = '0';
@@ -125,7 +131,7 @@ public class User
 	
 	
 	// prijava korisnika
-	public static User login() {
+	static User login() {
 		String username = null;
 		String passwordAttempt = null;
 		
@@ -153,7 +159,7 @@ public class User
 	
 	
 	// dohvati enkriptiranu lozinku
-	public String getEPassword() {
+	protected String getEPassword() {
 		String EPassword = null;
 		
 		try (BufferedReader reader = new BufferedReader(new FileReader(this.username + ".txt"))) {
@@ -165,7 +171,7 @@ public class User
 		return EPassword;
 	}
 	
-	public static String getEPassword(String username) {
+	protected static String getEPassword(String username) {
 		String EPassword = null;
 		
 		try (BufferedReader reader = new BufferedReader(new FileReader(username + ".txt"))) {
@@ -180,7 +186,7 @@ public class User
 	
 	
 	// uplata ili isplata na racun
-	public void makePayment() {
+	void makePayment() {
 		double payment = 0;
 		
 		// unos kolicine
@@ -217,7 +223,7 @@ public class User
 	
 	
 	// placanje
-	public void makeTransaction() {
+	void makeTransaction() {
 		String userIBAN = BankAccount.getAccount(this.username).IBAN;
 		String recipient = null;
 		double amount = 0;
@@ -317,7 +323,7 @@ public class User
 	
 	
 	// metoda koja vraca ArrayList u kojoj su sve transakcije korisnika
-	public void loadTransactionList() {
+	void loadTransactionList() {
 		String payerIBAN = null;
 		String recipientIBAN = null;
 		double amount = 0;

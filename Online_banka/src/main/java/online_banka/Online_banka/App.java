@@ -23,7 +23,7 @@ public class App
 	
 	
 	// funkcije za unos
-	public static String getInput(String text, int maxLength, boolean noSpace) {
+	static String getInput(String text, int maxLength, boolean noSpace) {
 		String input = null;
 		
 		while (true) {
@@ -38,7 +38,7 @@ public class App
 		}
 	}
 	
-	public static char getChar(String text) {
+	static char getChar(String text) {
 		String input = null;
 		
 		while (true) {
@@ -50,7 +50,7 @@ public class App
 		}
 	}
 	
-	public static char getCharStrict(String text, String allowedInputs) {
+	static char getCharStrict(String text, String allowedInputs) {
 		String input = null;
 		
 		while (true) {
@@ -64,23 +64,6 @@ public class App
 			}
 		}
 	}
-
-	
-	
-	// izbornik za prijavu u aplikaciju
-	public static User welcomeSignIn() {
-		char choice = '0';
-		User user = null;
-		
-		// prijava ili registracija u sustav
-		choice = getCharStrict("r - registracija, p - prijava, e - izlaz", "rpe");
-		// registracija
-		if (choice == 'r') user = User.registration();
-		// prijava
-		else if (choice == 'p') user = User.login();
-		
-		return user;
-	}
 	
 	
 	
@@ -88,6 +71,9 @@ public class App
 	// main program aplikacije
 	public static void main(String[] args)
 	{
+		char choice = '0';
+		User user = null;
+		
 		// naslov
 		System.out.println();
 		System.out.println("################################################################");
@@ -96,21 +82,22 @@ public class App
 		System.out.println();
 		
 		
-		// korisnik se prijavljuje
-		User user = welcomeSignIn();
-		// korisnik je odabrao izlaz iz programa u nekoj od metoda za prijavu
+		// prijava ili registracija u sustav
+		choice = getCharStrict("r - registracija, p - prijava, e - izlaz", "rpe");
+		if (choice == 'r') user = User.registration();
+		else if (choice == 'p') user = User.login();
+		
 		if (user == null) {
+			// korisnik je odabrao izlaz
 			cleanUp();
 			return;
 		}
-		// uspjesna prijava
-		else {
-			System.out.println("\nDobrodosli, " + user.username + "! \n");
-		}
+		
+		
+		System.out.println("\nDobrodosli, " + user.username + "! \n");
 		
 
 		// glavna infinite petlja - menu aplikacije
-		char choice = '0';
 		while (true) {
 			
 			// odabir opcije
@@ -246,7 +233,7 @@ public class App
 	
 	
 	// pospremanje
-	public static void cleanUp() {
+	private static void cleanUp() {
 		scanner.close();
 		System.out.println("\n\n\nBye! ");
 	}

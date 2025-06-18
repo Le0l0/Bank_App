@@ -18,7 +18,7 @@ import java.util.Base64;
 
 
 
-public class Encryption
+class Encryption
 {
 	// za AES
 	private static final int KEY_LENGTH = 256;

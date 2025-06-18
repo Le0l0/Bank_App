@@ -16,7 +16,7 @@ class TransactionComparator implements Comparator<Transaction>
 
 
 
-public class Transaction
+class Transaction
 {
 	protected String payer;
 	protected String recipient;
@@ -40,9 +40,9 @@ public class Transaction
 	}
 	
 	public void printTransaction(String userIBAN, String username) {
-		System.out.println("\nPlatitelj:\t" + payer + (userIBAN.equals(payer) ? " (vi)" : ""));
+		System.out.println("Platitelj:\t" + payer + (userIBAN.equals(payer) ? " (vi)" : ""));
 		System.out.println("Primatelj:\t" + recipient + (userIBAN.equals(recipient) || username.equals(recipient) ? " (vi)" : ""));
 		System.out.println("Iznos:\t\t" + amount);
-		System.out.println("Datum:\t\t" + date);
+		System.out.println("Datum:\t\t" + date + "\n");
 	}
 }

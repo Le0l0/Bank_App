@@ -22,7 +22,7 @@ class BankAccount
 	public BankAccount() {
 		this.IBAN = null;
 		this.balance = 0;
-		this.value = "KN";
+		this.value = null;
 	}
 
 	public BankAccount(String IBAN, double balance, String value) {
@@ -146,16 +146,6 @@ class BankAccount
 	}
 
 
-
-	// azururanje stanja na racunu
-	void updateAccount(User user) throws IOException {
-		String ePassword = user.getEPassword();
-		try(FileWriter writer = new FileWriter(user.username + ".txt", false)) {
-			// zapisi nove podatke
-			writer.write(ePassword + "\n");
-			writer.write(IBAN + "\n" + balance + "\n" + value + "\n");
-		}
-	}
 
 	void updateAccount(String username) throws IOException {
 		String ePassword = User.getEPassword(username);

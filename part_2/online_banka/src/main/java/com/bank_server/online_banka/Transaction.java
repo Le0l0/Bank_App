@@ -12,7 +12,7 @@ import java.util.ArrayList;
 class Transaction
 {
 	// metoda koja vraca ArrayList u kojoj su sve transakcije korisnika
-	static ArrayList<TransactionM> loadTransactionList(String username) {
+	static ArrayList<TransactionM> getTransactionList(String username) {
 		ArrayList<TransactionM> list = new ArrayList<TransactionM>();
 		
 		String payerIBAN = null;

@@ -70,6 +70,9 @@ class User
 	
 	// registracija korisnika
 	static boolean registration(String username, String password, char encryption) {
+		// ako vec postoji korinsnik sa istim nazivom, nemoj ga opet stvarati
+		if (User.userExists(username)) return false;
+		
 		User user = new User(username, password, encryption);
 		
 		return user != null;
@@ -87,18 +90,6 @@ class User
 	
 	
 	// dohvati enkriptiranu lozinku
-	protected String getEPassword() {
-		String EPassword = null;
-		
-		try (BufferedReader reader = new BufferedReader(new FileReader(this.username + ".txt"))) {
-			EPassword = reader.readLine();
-		} catch (IOException e) {
-			System.out.println(e);
-		}
-		
-		return EPassword;
-	}
-	
 	protected static String getEPassword(String username) {
 		String EPassword = null;
 		

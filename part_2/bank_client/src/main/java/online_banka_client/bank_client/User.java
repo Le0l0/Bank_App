@@ -13,7 +13,7 @@ import org.springframework.http.ResponseEntity;
 class User
 {
 	String username;
-	ArrayList<Transaction> transactionList = null;
+	ArrayList<Transaction> transactionList;
 
 	
 
@@ -47,7 +47,7 @@ class User
 				response = App.rest.getForObject(App.serverAddr + "/users/" + username + "/exists", boolean.class);
 			} catch (RestClientException e) {
 				System.out.println("Greska: " + e.getMessage());
-				continue;
+				return null;
 			}
 			if (response == true) {
 				System.out.println("Ovo korisnicko ime je zauzeto, uneste neko drugo. ");

@@ -68,7 +68,7 @@ public class OnlineBankAppServer
 	// vraca (nesortiranu) listu transakcija
 	@GetMapping("/users/{username}/history")
 	public ResponseEntity<ArrayList<TransactionM>> getAccHistory(@PathVariable String username) {
-		return new ResponseEntity<ArrayList<TransactionM>>(Transaction.loadTransactionList(username), HttpStatus.OK);
+		return new ResponseEntity<ArrayList<TransactionM>>(Transaction.getTransactionList(username), HttpStatus.OK);
 	}
 	
 	

@@ -45,13 +45,13 @@ class User
 			// provjeri postoji li vec korisnik s unesenim imenom
 			try {
 				response = App.rest.getForObject(App.serverAddr + "/users/" + username + "/exists", boolean.class);
+				if (response == true) {
+					System.out.println("Ovo korisnicko ime je zauzeto, uneste neko drugo. ");
+					continue;
+				}
 			} catch (RestClientException e) {
 				System.out.println("Greska: " + e.getMessage());
 				return null;
-			}
-			if (response == true) {
-				System.out.println("Ovo korisnicko ime je zauzeto, uneste neko drugo. ");
-				continue;
 			}
 			
 			// unos lozinke
@@ -75,7 +75,8 @@ class User
 		
 		// posalji serveru da registrira korisnika
 		try {
-			App.rest.postForObject(App.serverAddr + "/users/registration", new UserM(username, password, choice), boolean.class);
+			response = App.rest.postForObject(App.serverAddr + "/users/registration", new UserM(username, password, choice), boolean.class);
+			if (response == false) throw new RestClientException("Servrer nije uspio kreirati korisnika! ");
 		} catch (RestClientException e) {
 			System.out.println("Nemoguce stvoriti korisnika: " + e.getMessage());
 			return null;

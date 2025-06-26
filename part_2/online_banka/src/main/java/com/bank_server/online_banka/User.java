@@ -1,6 +1,10 @@
 package com.bank_server.online_banka;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.File;
 import java.time.LocalDate;																// za zapisivanje u popis transakcija
 
 
@@ -12,7 +16,7 @@ class User
 	
 	
 	
-	// konstruktor - koristen pri registraciji novog korisnika
+	// konstruktor - koristen pri registraciji novog korisnika - postavlja username i stvara korisnikove datoteke
 	public User(String username, String password, char encryption) {
 		this.username = username;
 		try {
@@ -46,7 +50,7 @@ class User
 		writer.close();
 	}
 	
-	// brisanje podataka o racunu (korisnikovih datoteka)
+	// brisanje korisnikovih datoteka - poziva i metodu za brisanje para IBAN-a i korisnickog imena iz datoteke 'userIBANlist.txt'
 	static boolean deleteFiles(String username) {
 		File userFile = new File(username + ".txt");
 		File userHistoryFile = new File(username + "_history.txt");
@@ -72,9 +76,7 @@ class User
 	static boolean registration(String username, String password, char encryption) {
 		// ako vec postoji korinsnik sa istim nazivom, nemoj ga opet stvarati
 		if (User.userExists(username)) return false;
-		
 		User user = new User(username, password, encryption);
-		
 		return user != null;
 	}
 	
@@ -82,6 +84,7 @@ class User
 	
 	// prijava korisnika
 	static boolean login(String username, String password) {
+		// vrati 'true' ako je prijava uspjesna, u suprotnom vrati 'false'
 		if (userExists(username) == true && Encryption.testPassword(password, getEPassword(username)) == true)
 			return true;
 		return false;
@@ -91,15 +94,13 @@ class User
 	
 	// dohvati enkriptiranu lozinku
 	protected static String getEPassword(String username) {
-		String EPassword = null;
-		
+		// procitaj samo prvu liniju iz korisnikove datoteke
 		try (BufferedReader reader = new BufferedReader(new FileReader(username + ".txt"))) {
-			EPassword = reader.readLine();
+			return reader.readLine();
 		} catch (IOException e) {
 			System.out.println(e);
+			return null;
 		}
-		
-		return EPassword;
 	}
 	
 	
@@ -117,6 +118,7 @@ class User
 		try {
 			tmpAcc.updateAccount(username);
 		} catch (IOException e) {
+			System.out.println(e);
 			return 2; // greska
 		}
 

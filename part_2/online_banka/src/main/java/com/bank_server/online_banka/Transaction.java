@@ -11,7 +11,7 @@ import java.util.ArrayList;
 
 class Transaction
 {
-	// metoda koja vraca ArrayList u kojoj su sve transakcije korisnika
+	// metoda koja ucitava sve korisnikove transakcije u ArrayList i vraca tu listu
 	static ArrayList<TransactionM> getTransactionList(String username) {
 		ArrayList<TransactionM> list = new ArrayList<TransactionM>();
 		

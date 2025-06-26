@@ -10,7 +10,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.client.RestClientException;
 
 
-// klase koje se koriste kao poruke za komunikaciju sa serverom
+//tipovi poruka - objekti za komunikaciju (DTOs)
 record UserM(String username, String password, char encryption) {}
 record BankAccM(String IBAN, double balance, String value) {}
 record TransactionReq(String recipient, double amount) {}
@@ -82,6 +82,7 @@ public class App
 			String response = rest.getForObject(serverAddr + "/", String.class);
 			if (response.equals("hello") == true) {}
 		} catch (RestClientException e) {
+			// server se ne moze dohvatiti
 			System.out.println("Nemoguce dohvatiti server! ");
 			cleanUp();
 			return;
@@ -174,7 +175,7 @@ public class App
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			// placanje
 			else if (choice == 'p') {
-				// obavi transakciju i zapisi je u povijest transakcija korisnika (ako je dovoljno novca na racunu)
+				// obavi transakciju i zapisi je u povijest transakcija platitelja i (ako je registriran u nasoj banci) primatelja
 				String recipient = null;
 				double amount = 0;
 				

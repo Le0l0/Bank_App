@@ -2,7 +2,6 @@ package online_banka_client.bank_client;
 
 import java.util.ArrayList;
 import java.time.LocalDate;
-////////////////////////////////
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;

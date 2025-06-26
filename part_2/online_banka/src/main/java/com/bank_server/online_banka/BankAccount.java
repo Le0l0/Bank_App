@@ -90,7 +90,7 @@ class BankAccount
 		ArrayList<String> updatedListIBANs = new ArrayList<String>();
 		ArrayList<String> updatedListUsernames = new ArrayList<String>();
 
-		// ucitavaj podatke iz "userIBANlist.txt" samo ako korisnicko ime nije jednako onom koje zelimo izbrisati
+		// ucitavaj podatke iz 'userIBANlist.txt' samo ako korisnicko ime nije jednako onom koje zelimo izbrisati
 		try (BufferedReader reader = new BufferedReader(new FileReader("userIBANlist.txt"))) {
 			String tmpUser = null;
 			String tmpIBAN = null;
@@ -147,6 +147,7 @@ class BankAccount
 
 
 
+	// metoda za zapisivanje podataka o racunu u korisnikovu datoteku
 	void updateAccount(String username) throws IOException {
 		String ePassword = User.getEPassword(username);
 		try(FileWriter writer = new FileWriter(username + ".txt", false)) {

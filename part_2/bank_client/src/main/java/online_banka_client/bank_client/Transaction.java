@@ -40,6 +40,9 @@ class Transaction
 		this.date = date;
 	}
 	
+	
+	
+	// isprintaj podatke o transakciji
 	public void printTransaction(String userIBAN, String username) {
 		System.out.println("Platitelj:\t" + payer + (userIBAN.equals(payer) ? " (vi)" : ""));
 		System.out.println("Primatelj:\t" + recipient + (userIBAN.equals(recipient) || username.equals(recipient) ? " (vi)" : ""));
@@ -49,7 +52,7 @@ class Transaction
 	
 	
 	
-	// metoda koje pretvara iz liste 'TransactionM' u listu 'Transaction'
+	// metoda koja pretvara iz liste 'TransactionM' u listu 'Transaction'
 	static ArrayList<Transaction> convertM(ArrayList<TransactionM> list) {
 		ArrayList<Transaction> retList = new ArrayList<Transaction>();
 		for (TransactionM element : list) {

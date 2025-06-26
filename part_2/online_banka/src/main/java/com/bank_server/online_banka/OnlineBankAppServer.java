@@ -2,12 +2,11 @@ package com.bank_server.online_banka;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-//  //  //  //  //  //  //  //  //  //  //  //  //  //  //  //  
+//------------------------------------------------------------//
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
-//import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.http.HttpStatus;
@@ -35,10 +34,16 @@ public class OnlineBankAppServer
 	
 	
 	
-	// pokreni server
+	// main - pokreni server
 	public static void main(String[] args) {
 		SpringApplication.run(OnlineBankAppServer.class, args);
 	}
+	
+	
+	
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// ostale metode su odgovori na pojedine HTTP requestove od klijentske aplikacije
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
 	
 	

@@ -17,7 +17,8 @@ import org.junit.jupiter.api.TestMethodOrder;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class EncryptionTest
 {
-	private static String password = "lopoc123";
+	private static String password1 = "lopoc123";
+	private static String password2 = "copol321";
 
 	
 	
@@ -36,19 +37,25 @@ class EncryptionTest
 	@Test
 	@Order(01)
 	public void test_AESEncryption() {
-		String ePassword = Encryption.encryptAES(password);
+		String ePassword = Encryption.encryptAES(password1);
 		String tmpPassword = Encryption.decryptAES(ePassword);
 		
-		assertTrue(tmpPassword.equals(password));
+		assertTrue(tmpPassword.equals(password1));
 	}
 	
 	
 	
-//	@Test
-//	@Order(02)
-//	public void test_SHAEncryption() {
-//		// TODO: kako testirati?		
-//		assertTrue(true);
-//	}
+	@Test
+	@Order(02)
+	public void test_SHAEncryption() { // cudan test
+		String ePassword0 = Encryption.encryptSHA(password1);
+		String ePassword1 = Encryption.encryptSHA(password1);
+		String ePassword2 = Encryption.encryptSHA(password2);
+		
+		assertAll(
+				() -> assertTrue(ePassword0.equals(ePassword1)),
+				() -> assertFalse(ePassword1.equals(ePassword2))
+				);
+	}
 	
 }

@@ -80,7 +80,7 @@ public class App
 		// prije svega provjeri radi li server
 		try {
 			String response = rest.getForObject(serverAddr + "/", String.class);
-			if (response.equals("hello") == true) {}
+			if (response.equals("hello") == true) {} // server vraca hello kada je pokrenut
 		} catch (RestClientException e) {
 			// server se ne moze dohvatiti
 			System.out.println("Nemoguce dohvatiti server! ");
@@ -89,7 +89,9 @@ public class App
 		}
 		
 		
-		char choice = '0';
+		// korisnikov unos kod menu-a
+		char choice = '-';
+		// objekt u kojem su zapisani podatci o prijavljenom korisniku
 		User user = null;
 		
 		// naslov
@@ -137,6 +139,7 @@ public class App
 				// dohvati racun prijavljenog korisnika i ispisi podatke
 				try {
 					BankAccM response = rest.getForObject(serverAddr + "/users/" + user.username + "/account-details", BankAccM.class);
+					if (response == null) throw new RestClientException("Server je vratio null objekt! ");
 					System.out.printf("IBAN racuna: %s\nStanje na racunu: %.2f %s\n\n", response.IBAN(), response.balance(), response.value());
 				} catch (RestClientException e) {
 					System.out.println("Nemoguce dohvatiti podatke o racunu: " + e.getMessage());
@@ -147,8 +150,8 @@ public class App
 			// uplata
 			else if (choice == 'u') {
 				// pitaj korisnika da unese iznos koji zeli uplatiti/isplatiti, te pokusaj izvrsiti uplatu/isplatu
-				// unos kolicine
 				double payment = 0;
+				// unos kolicine
 				while (true) {
 					String tmp = App.getInput("Unesite iznos uplate: ", 32, true);
 					try {
@@ -163,8 +166,8 @@ public class App
 				try {
 					int response = (int) rest.postForObject(serverAddr + "/users/" + user.username + "/make-payment", payment, Integer.class);
 					switch (response) {
-					case 0: System.out.println("Uplata/isplata uspjesna. \n"); break;
-					case 1: System.out.println("Isplata neuspjesna - nedovoljno novca na racunu. \n"); break;
+					case 0:  System.out.println("Uplata/isplata uspjesna. \n"); break;
+					case 1:  System.out.println("Isplata neuspjesna - nedovoljno novca na racunu. \n"); break;
 					default: System.out.println("Nije moguce izvrsiti uplatu/isplatu! ");
 					}
 				} catch (RestClientException e) {
@@ -205,10 +208,10 @@ public class App
 				try {
 					int response = (int) rest.postForObject(serverAddr + "/users/" + user.username + "/make-transaction", new TransactionReq(recipient, amount), Integer.class);
 					switch (response) {
-					case 0: System.out.printf("Transakcija uspjesna. Uplaceno %.2f EUR na racun %s. \n", amount, recipient); break;
-					case 1: System.out.println("Nedovoljno novca na racunu. Transakcija neuspjesna. \n"); break;
-					case 2: System.out.println("Nije moguce citati iz datoteke 'userIBANlist.txt'! \n"); break;
-					case 3: System.out.println("Azuriranje racuna primatelja neuspjesno! \n"); break;
+					case 0:  System.out.printf("Transakcija uspjesna. Uplaceno %.2f EUR na racun %s. \n", amount, recipient); break;
+					case 1:  System.out.println("Nedovoljno novca na racunu. Transakcija neuspjesna. \n"); break;
+					case 2:  System.out.println("Nije moguce citati iz datoteke 'userIBANlist.txt'! \n"); break;
+					case 3:  System.out.println("Azuriranje racuna primatelja neuspjesno! \n"); break;
 					default: System.out.println("Doslo je do greske! \n");
 					}
 				} catch (RestClientException e) {
@@ -217,7 +220,7 @@ public class App
 			}
 			
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-			// popis transakcija
+			// popis transakcija		TODO: popravi sortiranje
 			else if (choice == 't') {
 //				// dohvati povijest transakcija
 				try {
@@ -255,10 +258,12 @@ public class App
 					}
 				}
 				
-				// dohvati IBAN korisnika - treba za lijapsi ispis
+				// dohvati IBAN korisnika - treba za lijepsi ispis
 				String userIBAN = null;
 				try {
-					userIBAN = rest.getForObject(serverAddr + "/users/" + user.username + "/account-details", BankAccM.class).IBAN();
+					BankAccM response = rest.getForObject(serverAddr + "/users/" + user.username + "/account-details", BankAccM.class);
+					if (response == null) throw new RestClientException("Server je vratio null objekt! ");
+					userIBAN = response.IBAN();
 				} catch (RestClientException e) {
 					System.out.println("Nemoguce dohvatiti podatke o racunu: " + e.getMessage());
 				}

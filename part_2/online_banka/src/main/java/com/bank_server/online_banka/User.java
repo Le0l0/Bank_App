@@ -45,29 +45,34 @@ class User
 		user_history.createNewFile();
 		
 		// zapisi par korisnickog imena i IBAN-a u datoteku
-		writer = new FileWriter("userIBANlist.txt", true);
-		writer.write(BankAccount.getAccount(this.username).IBAN + "\n" + this.username + "\n");
-		writer.close();
+//		writer = new FileWriter("userIBANlist.txt", true);
+//		writer.write(BankAccount.getAccount(this.username).IBAN + "\n" + this.username + "\n");
+//		writer.close();
+		
+		// baza podataka test
+//		OnlineBankServer.userRepo.save(new UserDB(BankAccount.getNewIBAN(), username, Encryption.encryptSHA(password), 0.0));
 	}
 	
 	// brisanje korisnikovih datoteka - poziva i metodu za brisanje para IBAN-a i korisnickog imena iz datoteke 'userIBANlist.txt'
-	static boolean deleteFiles(String username) {
-		File userFile = new File(username + ".txt");
-		File userHistoryFile = new File(username + "_history.txt");
-				
-		boolean ret = userFile.delete() & userHistoryFile.delete();
-		// ako su datoteke uspjesno izbrisane, izbrisi korisnicko ime i IBAN iz liste
-		if (ret == true) BankAccount.updateUserIBANList(username);
-		
-		return ret;		
+	static void deleteUser(String username) {
+//		File userFile = new File(username + ".txt");
+//		File userHistoryFile = new File(username + "_history.txt");
+//				
+//		boolean ret = userFile.delete() & userHistoryFile.delete();
+//		// ako su datoteke uspjesno izbrisane, izbrisi korisnicko ime i IBAN iz liste
+//		if (ret == true) BankAccount.updateUserIBANList(username);
+//		
+//		return ret;
+		OnlineBankServer.userRepo.deleteByUsername(username);
 	}
 	
 	
 	
 	// provjera postoji li korisnik s unesenim korisnickim imenom
 	public static boolean userExists(String username) {
-		File userFile = new File(username + ".txt");
-		return userFile.exists();
+//		File userFile = new File(username + ".txt");
+//		return userFile.exists();
+		return OnlineBankServer.userRepo.existsByUsername(username);
 	}
 	
 	
@@ -75,9 +80,15 @@ class User
 	// registracija korisnika
 	static boolean registration(String username, String password, char encryption) {
 		// ako vec postoji korinsnik sa istim nazivom, nemoj ga opet stvarati
-		if (User.userExists(username)) return false;
-		User user = new User(username, password, encryption);
-		return user != null;
+		if (userExists(username)) return false;
+//		if (User.userExists(username)) return false;
+//		User user = new User(username, password, encryption);
+		OnlineBankServer.userRepo.save(new UserDB(
+				username, 
+				encryption == 'a' ? Encryption.encryptAES(password) : Encryption.encryptSHA(password), 
+				0.0
+		));
+		return OnlineBankServer.userRepo.existsByUsername(username);
 	}
 	
 	
@@ -85,30 +96,48 @@ class User
 	// prijava korisnika
 	static boolean login(String username, String password) {
 		// vrati 'true' ako je prijava uspjesna, u suprotnom vrati 'false'
-		if (userExists(username) == true && Encryption.testPassword(password, getEPassword(username)) == true)
-			return true;
-		return false;
+//		return userExists(username) && Encryption.testPassword(password, getEPassword(username));
+//		if (userExists(username) == true && Encryption.testPassword(password, getEPassword(username)) == true)
+//			return true;
+//		return false;
+		return  userExists(username)
+				&&
+				Encryption.testPassword(password, getUserEPassword(username));
 	}
 	
 	
 	
 	// dohvati enkriptiranu lozinku
-	protected static String getEPassword(String username) {
+	protected static String getUserEPassword(String username) {
 		// procitaj samo prvu liniju iz korisnikove datoteke
-		try (BufferedReader reader = new BufferedReader(new FileReader(username + ".txt"))) {
-			return reader.readLine();
-		} catch (IOException e) {
-			System.out.println(e);
+		try {
+			String tmp = OnlineBankServer.userRepo.findByUsername(username).getEPassword();
+			return tmp;
+		} catch (Exception e) {
 			return null;
 		}
+//		try (BufferedReader reader = new BufferedReader(new FileReader(username + ".txt"))) {
+//			return reader.readLine();
+//		} catch (IOException e) {
+//			System.out.println(e);
+//			return null;
+//		}
 	}
 	
 	
 	
 	// uplata ili isplata na racun
 	static Integer makePayment(String username, double payment) {
+		// dohvati podatke o racunu
+		BankAccount tmpAcc = null;
+		try {
+			tmpAcc = BankAccount.getAccount(username);
+		} catch (IOException e) {
+			System.out.println("Nije moguce dohvatiti korisnikov racun: " + e.getMessage());
+			return 2; // greska
+		}
+		
 		// ako ce stanje racuna poslije isplate biti manje od nula, korisnik nema dovoljno novca za isplatu
-		BankAccount tmpAcc = BankAccount.getAccount(username);
 		if (tmpAcc.balance + payment < 0) {
 			return 1; // nedovoljno novaca na racunu
 		}
@@ -130,10 +159,16 @@ class User
 	// placanje
 	static Integer makeTransaction(String username, String recipient, double amount) {		
 		// dohvati podatke o racunu
-		BankAccount account = BankAccount.getAccount(username);
+		BankAccount account = null;
+		try {
+			account = BankAccount.getAccount(username);
+		} catch (IOException e) {
+			System.out.println("Nije moguce dohvatiti korisnikov racun: " + e.getMessage());
+			return 4;
+		}
 		
-		// ako nema dovoljno novaca transakciju nije moguce izvrsiti
-		if (account.balance < amount) {
+		// ako nema dovoljno novca transakciju nije moguce izvrsiti
+		if (account.balance < amount || amount <= 0) {
 			return 1;
 		}
 		int retval = 0;

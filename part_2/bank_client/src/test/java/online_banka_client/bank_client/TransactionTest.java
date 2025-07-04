@@ -65,7 +65,7 @@ class TransactionTest
 	
 	@Test
 	@Order(01)
-	public void test_convertM() {		// TODO: cudan test
+	public void test_convertM() { // cudan test
 		ArrayList<Transaction> list = Transaction.convertM(tMList);
 		
 		for (Transaction el : list) {

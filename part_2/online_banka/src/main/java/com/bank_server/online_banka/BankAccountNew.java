@@ -5,12 +5,11 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
 
 
 
 
-class BankAccount
+class BankAccountNew
 {
 	protected String IBAN;
 	protected double balance;
@@ -19,13 +18,13 @@ class BankAccount
 
 
 	// konstruktori
-	public BankAccount() {
+	public BankAccountNew() {
 		this.IBAN = null;
 		this.balance = 0;
 		this.value = null;
 	}
 
-	public BankAccount(String IBAN, double balance, String value) {
+	public BankAccountNew(String IBAN, double balance, String value) {
 		this.IBAN = IBAN;
 		this.balance = balance;
 		this.value = value;
@@ -84,65 +83,10 @@ class BankAccount
 
 
 
-	// metoda za brisanje IBAN-a i korisnickog imena iz datoteke "userIBANlist.txt" kada korisnik brise svoj racun
-	static void updateUserIBANList(String deletedUsername) {
-		// dvije liste: jedna za IBAN-ove korisnika, jedna za korisnicka imena
-		ArrayList<String> updatedListIBANs = new ArrayList<String>();
-		ArrayList<String> updatedListUsernames = new ArrayList<String>();
-
-		// ucitavaj podatke iz 'userIBANlist.txt' samo ako korisnicko ime nije jednako onom koje zelimo izbrisati
-		try (BufferedReader reader = new BufferedReader(new FileReader("userIBANlist.txt"))) {
-			String tmpUser = null;
-			String tmpIBAN = null;
-
-			tmpIBAN = reader.readLine();
-			while (tmpIBAN != null && tmpIBAN.equals("") == false) {
-				tmpUser = reader.readLine();
-
-				if (tmpUser.equals(deletedUsername) == false) {
-					updatedListIBANs.add(tmpIBAN);
-					updatedListUsernames.add(tmpUser);
-				}
-
-				tmpIBAN = reader.readLine();
-			}
-		}
-		catch (IOException e) {
-			System.out.println("Nije moguce citati iz datoteke 'userIBANlist.txt'! Nesto nije dobro u updateUserIBANList! ");
-		}
-
-		// zapisi liste u "userIBANlist.txt" koje ne sadrze podatke o izbrisanom korisniku
-		try (FileWriter writer = new FileWriter("userIBANlist.txt", false)) {
-			for (int i = 0; i < updatedListIBANs.size(); i++) {
-				writer.write(updatedListIBANs.get(i) + "\n");
-				writer.write(updatedListUsernames.get(i) + "\n");
-			}
-		}
-		catch (IOException e) {
-			System.out.println("Nije moguce pisati u datoteku 'userIBANlist.txt'! Nesto nije dobro u updateUserIBANList! ");
-		}
-	}
-
-
-
 	// dohvati podatke o racunu
-	static BankAccount getAccount(String username) throws IOException {
-		String IBAN = null;
-		double balance = 0;
-		String value = null;
-
-		try (BufferedReader reader = new BufferedReader(new FileReader(username + ".txt"))) {
-			// preskoci lozinku
-			reader.readLine();
-			// procitaj podatke o racunu
-			IBAN = reader.readLine();
-			balance = Double.parseDouble(reader.readLine());
-			value = reader.readLine();
-		} catch (NumberFormatException e) {
-			System.out.println(e);
-		}
-
-		return new BankAccount(IBAN, balance, value);
+	static BankAccountNew getAccount(String username) {
+		BankAccDB tmpacc = OnlineBankServer.bankaccRepo.findByOwner(username);
+		return new BankAccountNew(tmpacc.getIban(), tmpacc.getBalance(), tmpacc.getValue());
 	}
 
 
@@ -160,7 +104,7 @@ class BankAccount
 	// azuriraj podatke o racunu koristeci samo username i dodaj iznos 'amount' na racun
 	static void updateAccountS(String username, double amount) throws IOException {
 		// dohvati racun
-		BankAccount bankAcc = getAccount(username);
+		BankAccountNew bankAcc = getAccount(username);
 		// dodaj 'amount'
 		bankAcc.balance += amount;
 		// zapisi nove podatke
@@ -174,5 +118,4 @@ class BankAccount
 		// zapisi nove podatke
 		this.updateAccount(username);
 	}
-
 }

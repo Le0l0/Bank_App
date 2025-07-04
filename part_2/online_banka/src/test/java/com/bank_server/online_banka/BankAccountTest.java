@@ -74,7 +74,11 @@ class BankAccountTest
 	@Test
 	@Order(02)
 	public void test_getAccount() {
-        bankAcc = BankAccount.getAccount(usernameT);
+		try {
+			bankAcc = BankAccount.getAccount(usernameT);
+		} catch (IOException e) {
+			fail("Nemoguce dohvatiti racun: " + e.getMessage());
+		}
 
         assertAll(
         		() -> assertNotNull(bankAcc.IBAN),
@@ -103,8 +107,12 @@ class BankAccountTest
 		} catch (IOException e) {
 			fail(e.getMessage());
 		}
-		bankAcc = BankAccount.getAccount(usernameT);
 		
+		try {
+			bankAcc = BankAccount.getAccount(usernameT);
+		} catch (IOException e) {
+			fail("Nemoguce dohvatiti racun: " + e.getMessage());
+		}		
 		
 		String newIBAN = bankAcc.IBAN;
 		double newBalance = bankAcc.balance;

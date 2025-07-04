@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.TestMethodOrder;
 // ostalo
 import java.io.File;
+import java.io.IOException;
 
 
 
@@ -86,17 +87,23 @@ class UserTest
 	@Test
 	@Order(03)
 	public void test_makePayment() {
-		User.makePayment(usernameT, 101.0);
-		double balance0 = BankAccount.getAccount(usernameT).balance;
-		User.makePayment(usernameT, -1000.0);
-		double balance1 = BankAccount.getAccount(usernameT).balance;		
-		User.makePayment(usernameT, -1.0);
-		double balance2 = BankAccount.getAccount(usernameT).balance;
+		double balance0 = -1, balance1 = -1, balance2 = -1;
 		
+		User.makePayment(usernameT, 101.0);
+		try {balance0 = BankAccount.getAccount(usernameT).balance;}
+		catch (IOException e) {}
+		User.makePayment(usernameT, -1000.0);
+		try {balance1 = BankAccount.getAccount(usernameT).balance;}
+		catch (IOException e) {}
+		User.makePayment(usernameT, -1.0);
+		try {balance2 = BankAccount.getAccount(usernameT).balance;}
+		catch (IOException e) {}
+		
+		final double balanceF0 = balance0, balanceF1 = balance1, balanceF2 = balance2;
 		assertAll(
-				() -> assertEquals(101.0, balance0),
-				() -> assertEquals(101.0, balance1),
-				() -> assertEquals(100.0, balance2)
+				() -> assertEquals(101.0, balanceF0),
+				() -> assertEquals(101.0, balanceF1),
+				() -> assertEquals(100.0, balanceF2)
 		);
 	}
 	
@@ -105,7 +112,6 @@ class UserTest
 	@Test
 	@Order(04)
 	public void test_makeTransaction() {
-        // App.scanner = new Scanner("H R123\ntestRecipient\n1 2 3\n-123\n10\n");
         User.makeTransaction(usernameT, recipientNameT, 10.0);
         
         assertAll(

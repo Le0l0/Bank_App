@@ -8,6 +8,8 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.TestMethodOrder;
+import org.springframework.web.client.RestClientException;
+
 // ostalo
 import java.util.Scanner;
 
@@ -77,6 +79,22 @@ public class AppTest
 		char input = App.getCharStrict("test", "a");
 		
 		assertEquals('a', input);
+	}
+	
+	
+	
+	@Test
+	@Order(04)
+	public void test_server() {
+		// ocekuje se da server nije pokrenut
+		try {
+			String response = App.rest.getForObject(App.serverAddr + "/", String.class);
+			if (response.equals("hello") == true)
+				fail("Srever je pokrenut - testovi nece davati dobre rezultate! ");
+		} catch (RestClientException e) {
+			// server se ne moze dohvatiti
+			assertTrue(true);
+		}
 	}
 	
 }

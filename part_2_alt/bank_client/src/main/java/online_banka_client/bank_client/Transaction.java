@@ -7,13 +7,21 @@ import java.util.Comparator;
 
 
 
-class TransactionComparator implements Comparator<Transaction>
-{
+// klase za sortiranje liste transakcija //
+
+// sortiranje po iznosu
+class TransactionAmountComparator implements Comparator<Transaction> {
 	public int compare(Transaction t1, Transaction t2) {
 		return t1.amount > t2.amount ? -1 : 1;
 	}
-	
 }
+// sortiranje po datumu
+class TransactionDateComparator implements Comparator<Transaction> {
+	public int compare(Transaction t1, Transaction t2) {
+		return t1.date.isAfter(t2.date) ? -1 : 1;
+	}
+}
+
 
 
 
@@ -43,9 +51,11 @@ class Transaction
 	
 	
 	// isprintaj podatke o transakciji
-	public void printTransaction(String userIBAN, String username) {
-		System.out.println("Platitelj:\t" + payer + (userIBAN.equals(payer) ? " (vi)" : ""));
-		System.out.println("Primatelj:\t" + recipient + (userIBAN.equals(recipient) || username.equals(recipient) ? " (vi)" : ""));
+	public void printTransaction() {
+//		System.out.println("Platitelj:\t" + payer + (userIBAN.equals(payer) ? " (vi)" : ""));
+//		System.out.println("Primatelj:\t" + recipient + (userIBAN.equals(recipient) ? " (vi)" : ""));
+		System.out.println("Platitelj:\t" + payer);
+		System.out.println("Primatelj:\t" + recipient);
 		System.out.println("Iznos:\t\t" + amount);
 		System.out.println("Datum:\t\t" + date + "\n");
 	}
@@ -53,11 +63,9 @@ class Transaction
 	
 	
 	// metoda koja pretvara iz liste 'TransactionM' u listu 'Transaction'
-	static ArrayList<Transaction> convertM(ArrayList<TransactionM> list) {
+	static ArrayList<Transaction> convertMessage(ArrayList<TransactionM> list) {
 		ArrayList<Transaction> retList = new ArrayList<Transaction>();
-		for (TransactionM element : list) {
-			retList.add(new Transaction(element.payer(), element.recipient(), element.amount(), element.date()));
-		}
+		list.forEach(TransactionM -> retList.add(new Transaction(TransactionM.payer(), TransactionM.recipient(), TransactionM.amount(), TransactionM.date())));
 		return retList;
 	}
 	

@@ -1,32 +1,24 @@
 package com.bank_server.online_banka;
 
-//import java.sql.Connection;
-//import java.sql.DriverManager;
-//import java.sql.Statement;
-//import java.sql.SQLException;
-//import java.io.File;
-//import java.util.List;
-//import org.hibernate.Query;
+// za bazu podataka
 import org.hibernate.Session;
-//import org.hibernate.SessionFactory;
-//import org.hibernate.cfg.AnnotationConfiguration;
-
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
-
+// za objekte koji idu u bazu podataka
 import java.io.Serializable;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-
+// ostalo
+import java.util.List;
 import java.time.LocalDate;
 
 
 
 
-// kopirano sa GeeksForGeeks i modificirano
+// kopirano sa GeeksForGeeks i dodane metode za nasu bazu podataka
 class BankDB
 {
 	private static final SessionFactory sessionFactory = buildSessionFactory();
@@ -35,15 +27,10 @@ class BankDB
 	
 	private static SessionFactory buildSessionFactory() {
 		try {
-			// We need to create the SessionFactory from
-			// hibernate.cfg.xml
+			// create the SessionFactory from hibernate.cfg.xml
 			return new Configuration().configure().buildSessionFactory();
 		}
 		catch (Throwable ex) {
-			// Make sure you log the exception, as it might
-			// be swallowed
-			// In case of any exception, it has to be
-			// indicated here
 			System.out.println("SESSIONFACTORY CREATION FAILED " + ex);
 			throw new ExceptionInInitializerError(ex);
 		}
@@ -57,31 +44,13 @@ class BankDB
 	
 	
 	
+	////////////////////////////////////////////////////////////////
+	/// metode za tablicu users									 ///
+	////////////////////////////////////////////////////////////////
 	static void saveUser(UserDB user) {
 		Session session = getSessionFactory().openSession();
 		session.beginTransaction();
-		
 		session.persist(user);
-		
-		session.getTransaction().commit();
-		session.close();
-	}
-	
-	static UserDB findUserByUsername(String username) {
-		Session session = getSessionFactory().openSession();
-		
-		UserDB user = session.createQuery("FROM UserDB WHERE username = :username", UserDB.class).setParameter("username", username).uniqueResult();
-		
-		session.close();
-		return user;
-	}
-	
-	static void deleteUserByUsername(String username) {
-		Session session = getSessionFactory().openSession();
-		session.beginTransaction();
-		
-		session.createQuery("DELETE FROM UserDB WHERE username = :username", UserDB.class).setParameter("username", username);
-		
 		session.getTransaction().commit();
 		session.close();
 	}
@@ -90,13 +59,30 @@ class BankDB
 		return findUserByUsername(username) != null ? true : false;
 	}
 	
+	static UserDB findUserByUsername(String username) {
+		Session session = getSessionFactory().openSession();
+		UserDB user = session.createQuery("FROM UserDB WHERE username = :username", UserDB.class).setParameter("username", username).uniqueResult();
+		session.close();
+		return user;
+	}
 	
+	static void deleteUserByUsername(String username) {
+		Session session = getSessionFactory().openSession();
+		session.beginTransaction();
+		session.remove(findUserByUsername(username));
+		session.getTransaction().commit();
+		session.close();
+	}
+	
+	
+	
+	////////////////////////////////////////////////////////////////
+	/// metode za tablicu accounts								 ///
+	////////////////////////////////////////////////////////////////
 	static void saveAcc(BankAccDB acc) {
 		Session session = getSessionFactory().openSession();
 		session.beginTransaction();
-		
 		session.persist(acc);
-		
 		session.getTransaction().commit();
 		session.close();
 	}
@@ -108,16 +94,70 @@ class BankDB
 		return acc;
 	}
 	
+	static BankAccDB findAccByIban(String iban) {
+		Session session = getSessionFactory().openSession();
+		BankAccDB acc = session.createQuery("FROM BankAccDB WHERE iban = :iban", BankAccDB.class).setParameter("iban", iban).uniqueResult();
+		session.close();
+		return acc;
+	}
+	
+//	static List<BankAccDB> findAccsByOwner(String owner) {
+//		Session session = getSessionFactory().openSession();
+//		List<BankAccDB> accList = session.createQuery("FROM BankAccDB WHERE owner = :owner", BankAccDB.class).setParameter("owner", owner).list();
+//		session.close();
+//		return accList;
+//	}
+	
 	static void updateAcc(BankAccDB acc) {
 		Session session = getSessionFactory().openSession();
 		session.beginTransaction();
-		
 		session.merge(acc);
-		//session.createQuery("UPDATE BankAccDB SET balance = :newBalance WHERE id = :id", BankAccDB.class).setParameter("newBalance", newBalance).setParameter("id", id);
-		
 		session.getTransaction().commit();
 		session.close();
 	}
+	
+	static void deleteAcc(BankAccDB acc) {
+		Session session = getSessionFactory().openSession();
+		session.beginTransaction();
+		session.remove(acc);
+		session.getTransaction().commit();
+		session.close();
+	}
+	
+	
+	
+	////////////////////////////////////////////////////////////////
+	/// metode za tablicu transactions							 ///
+	////////////////////////////////////////////////////////////////
+	static void saveTransaction(TransactionDB trans) {
+		Session session = getSessionFactory().openSession();
+		session.beginTransaction();
+		session.persist(trans);
+		session.getTransaction().commit();
+		session.close();
+	}
+	
+	static List<TransactionDB> findTransByPayer(String payer) {
+		Session session = getSessionFactory().openSession();
+		List<TransactionDB> transList = session.createQuery("FROM TransactionDB WHERE payer = :payer", TransactionDB.class).setParameter("payer", payer).list();
+		session.close();
+		return transList;
+	}
+	
+	static List<TransactionDB> findTransByRecipient(String recipient) {
+		Session session = getSessionFactory().openSession();
+		List<TransactionDB> transList = session.createQuery("FROM TransactionDB WHERE recipient = :recipient", TransactionDB.class).setParameter("recipient", recipient).list();
+		session.close();
+		return transList;
+	}
+	
+//	static void deleteTransaction(TransactionDB trans) {
+//		Session session = getSessionFactory().openSession();
+//		session.beginTransaction();
+//		session.remove(trans);
+//		session.getTransaction().commit();
+//		session.close();
+//	}
 	
 }
 
@@ -125,8 +165,8 @@ class BankDB
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// ispod su klase koje reprezentiraju retke u tablicama
-// kopirano i modificirano sa stranice "https://hackernoon.com/using-postgres-effectively-in-spring-boot-applications"
+// ispod su klase koje reprezentiraju retke u tablicama baze podataka														  //
+// kopirano i modificirano sa stranice "https://hackernoon.com/using-postgres-effectively-in-spring-boot-applications"		  //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 @Entity

@@ -1,164 +1,147 @@
-//package com.bank_server.online_banka;
-//
-//// za JUnit testiranje
-//import static org.junit.jupiter.api.Assertions.*;
-//import org.junit.jupiter.api.Test;
-//import org.junit.jupiter.api.BeforeAll;
-//import org.junit.jupiter.api.AfterAll;
-//import org.junit.jupiter.api.MethodOrderer;
-//import org.junit.jupiter.api.Order;
-//import org.junit.jupiter.api.TestMethodOrder;
-//// ostalo
-//import java.io.BufferedReader;
-//import java.io.FileReader;
-//import java.io.IOException;
-//
-//
-//
-//
-//@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-//class BankAccountTest
-//{
-//	private static String usernameT = "testuser";
-//	private static String passwordT = "testpassword";
-//	private static char encryptionT = 's';
-//	private static BankAccount bankAcc = null;
-//	
-//	
-//	@BeforeAll
-//	public static void TEST_initialize() {
-//		// stvori korisnikove datoteke
-//		new User(usernameT, passwordT, encryptionT);
-//		User.makePayment(usernameT, 100.0);
-//	}
-//	
-//	@AfterAll
-//	public static void TEST_cleaning_up() {
-//		// niista, korisnikove datoteke se izbrisu u zadnjem testu
-//	}
-//	
-//	
-//	
-//	@Test
-//	@Order(00)
-//	// konstruktori
-//	public void test_BankAccount() {
-//		BankAccount bankAccE = new BankAccount();
-//		BankAccount bankAccF = new BankAccount("HR123", 1.0, "KN");
-//		
-//		assertAll(
-//				() -> assertNull(bankAccE.IBAN),
-//    			() -> assertEquals(0.0, bankAccE.balance),
-//				() -> assertNull(bankAccE.value),
-//				() -> assertTrue(bankAccF.IBAN.equals("HR123")),
-//    			() -> assertEquals(1.0, bankAccF.balance),
-//				() -> assertTrue(bankAccF.value.equals("KN"))
-//    	);
-//	}
-//	
-//	
-//	
-//	@Test
-//	@Order(01)
-//	public void test_getNewIBAN() {
-//		String newIBAN = BankAccount.getNewIBAN();
-//		
-//		assertAll(
-//				() -> assertNotNull(newIBAN),
-//    			() -> assertFalse(newIBAN.equals("HR" + String.format("%032d", 0)))
-//    	);
-//	}
-//	
-//	
-//	
-//	@Test
-//	@Order(02)
-//	public void test_getAccount() {
-//		try {
-//			bankAcc = BankAccount.getAccount(usernameT);
-//		} catch (IOException e) {
-//			fail("Nemoguce dohvatiti racun: " + e.getMessage());
-//		}
-//
-//        assertAll(
-//        		() -> assertNotNull(bankAcc.IBAN),
-//        		() -> assertFalse(bankAcc.IBAN.equals("HR" + String.format("%032d", 0))),
-//        		() -> assertEquals(bankAcc.balance, 100.0),
-//        		() -> assertNotNull(bankAcc.value)
-//    	);
-//	}
-//	
-//	
-//	
-//	@Test
-//	@Order(03)
-//	public void test_updateAccount() {
-//		
-//		
-//		String prevIBAN = bankAcc.IBAN;
-//		double prevBalance = bankAcc.balance;
-//		String prevValue = bankAcc.value;
-//
-//		bankAcc.IBAN = BankAccount.getNewIBAN();
-//		// treba azururati 2 puta posebno za testirati dvije metode jer je druga staticka i ne vidi promjenu IBAN-a(linija iznad)
-//		try {
-//			bankAcc.updateAccount(usernameT);
-//			BankAccount.updateAccountS(usernameT, 10);
-//		} catch (IOException e) {
-//			fail(e.getMessage());
-//		}
-//		
-//		try {
-//			bankAcc = BankAccount.getAccount(usernameT);
-//		} catch (IOException e) {
-//			fail("Nemoguce dohvatiti racun: " + e.getMessage());
-//		}		
-//		
-//		String newIBAN = bankAcc.IBAN;
-//		double newBalance = bankAcc.balance;
-//		String newValue = bankAcc.value;
-//		
-//		bankAcc.IBAN = prevIBAN;
-//		bankAcc.balance = prevBalance;
-//		try {
-//			bankAcc.updateAccount(usernameT);
-//		} catch (IOException e) {
-//			fail(e.getMessage());
-//		}
-//		
-//		assertAll(
-//	    	"updateAccount",
-//	    	() -> assertFalse(prevIBAN.equals(newIBAN)),
-//	    	() -> assertEquals(prevBalance, newBalance - 10),
-//	    	() -> assertTrue(prevValue.equals(newValue))
-//	    );
-//	}
-//	
-//	
-//	
-//	@Test
-//	@Order(04)
-//	public void test_updateUserIBANList() {		
-//		// metoda 'deleteFiles' poziva 'BankAccount.updateuserIBANList(username)'
-//		User.deleteFiles(usernameT);
-//		
-//		// provjeri nalazi li se jos uvijek korisnicko ime u datoteci
-//		boolean usernamePresent = false;
-//		String tmpS = null;
-//		try (BufferedReader reader = new BufferedReader(new FileReader("userIBANlist.txt"))) {
-//			tmpS = reader.readLine();
-//			while (tmpS != null && tmpS != "") {
-//				if (tmpS.equals(usernameT) == true) {
-//					usernamePresent = true;
-//					break;
-//				}
-//				tmpS = reader.readLine();
-//			}
-//		} catch (IOException e) {
-//			fail(e.getMessage());
-//		}
-//		
-//		assertFalse(usernamePresent);
-//	}
-//
-//}
+package com.bank_server.online_banka;
+
+// za JUnit testiranje
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.hibernate.Session;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.TestMethodOrder;
+// ostalo
+// nista
+
+
+
+
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+class BankAccountTest
+{
+	private static String owner = "testuser";
+	private static String iban = "HR123";
+	private static double balance = 100;
+	private static String value = "HRK";
+	private static BankAccDB accDB = null;
+	private static BankAccount acc = null;
+	
+	
+	@BeforeAll
+	public static void TEST_initialize() {
+		// stvori objekt tipa 'BankAccDB' i onda iz njega stvori objekt tipa 'BankAccount'
+		accDB = new BankAccDB(owner, iban, balance, value);
+		BankDB.saveAcc(accDB);
+		// odmah spremi racun u bazu podataka
+		acc = new BankAccount(accDB);
+	}
+	
+	@AfterAll
+	public static void TEST_cleaning_up() {
+		// nista
+	}
+	
+	
+	
+	@Test
+	@Order(01)
+	public void test_getNewIBAN() {
+		String newIBAN = BankAccount.getNewIBAN();
+		
+		assertAll(
+				() -> assertNotNull(newIBAN),
+    			() -> assertFalse(newIBAN.equals("HR" + String.format("%032d", 0)))
+				);
+	}
+	
+	
+	
+	@Test
+	@Order(02)
+	public void test_getAccountByOwner() {
+		BankAccount tmpacc = null;
+		try {
+			tmpacc = BankAccount.getAccountByOwner(owner);
+		} catch (Exception e) {
+			fail("BankAccount.getAccountByOwner ne radi");
+		}
+		
+		final BankAccount tmpaccF = tmpacc;
+		assertAll(
+    			() -> assertTrue(tmpaccF.getIBAN().equals(acc.getIBAN())),
+    			() -> assertTrue(tmpaccF.balance == acc.balance),
+    			() -> assertTrue(tmpaccF.getValue().equals(acc.getValue()))
+				);
+	}
+	
+	
+	
+	@Test
+	@Order(03)
+	public void test_getAccountByIban() {
+		BankAccount tmpacc = null;
+		try {
+			tmpacc = BankAccount.getAccountByIban(iban);
+		} catch (Exception e) {
+			fail("BankAccount.getAccountByIban ne radi");
+		}
+		
+		final BankAccount tmpaccF = tmpacc;
+		assertAll(
+    			() -> assertTrue(tmpaccF.getIBAN().equals(acc.getIBAN())),
+    			() -> assertTrue(tmpaccF.balance == acc.balance),
+    			() -> assertTrue(tmpaccF.getValue().equals(acc.getValue()))
+				);
+	}
+	
+	
+	
+	@Test
+	@Order(04)
+	public void test_updateAccount() {
+		acc.balance += 10;
+		acc.updateAccount(owner);
+		
+		assertAll(
+    			() -> assertTrue(acc.getIBAN().equals(iban)),
+    			() -> assertTrue(acc.balance == 110),
+    			() -> assertTrue(acc.getValue().equals(value))
+				);
+	}
+	
+	
+	
+	@Test
+	@Order(05)
+	public void test_ownerToIban() {
+		String result1 = null;
+		String result2 = null;
+		
+		try {
+			result1 = BankAccount.ownerToIban(owner);
+		} catch (Exception e) {}
+		try {
+			result2 = BankAccount.ownerToIban("nepostojeci korisnik");
+		} catch (Exception e) {}
+		
+		final String result1F = result1, result2F = result2;
+		assertAll(
+    			() -> assertTrue(result1F.equals(iban)),
+    			() -> assertNull(result2F)
+				);
+	}
+	
+	
+	
+	@Test
+	@Order(06)
+	public void test_deleteAccs() {
+		BankAccount.deleteAccs(owner);
+		
+		Session session = BankDB.getSessionFactory().openSession();
+		BankAccDB tmpdbacc = session.createQuery("FROM BankAccDB WHERE iban = :iban", BankAccDB.class).setParameter("iban", iban).uniqueResult();
+		session.close();
+		
+    	assertNull(tmpdbacc);
+	}
+
+}

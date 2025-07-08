@@ -26,7 +26,7 @@ public class OnlineBankAppServerTest
 	
 	@BeforeAll
 	public static void TEST_initialize() {
-		// server = new OnlineBankAppServer();
+		server = new OnlineBankServer();
 		// user se stvara u testu za registraciju
 	}
 	
@@ -154,6 +154,14 @@ public class OnlineBankAppServerTest
 	public void test_deleteUser() {
 		server.deleteUser(usernameT);
 		assertFalse(User.userExists(usernameT));
+	}
+	
+	
+	
+	@Test
+	@Order(11)
+	public void test_shutServer() {
+		// TODO: kako testirati?
 	}
 
 }

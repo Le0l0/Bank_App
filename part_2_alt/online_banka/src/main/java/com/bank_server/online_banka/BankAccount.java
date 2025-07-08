@@ -5,34 +5,38 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+//import java.util.List;
 
 
 
 
 class BankAccount
 {
+	private Integer id;
 	private String IBAN;
-	private int id;
 	double balance;
 	private String value;
 	private static int lastIBAN = -1;
 
 
-	// konstruktori
-	public BankAccount() {
-		this.id = -1;
-		this.IBAN = null;
-		this.balance = 0;
-		this.value = null;
-	}
 
-	public BankAccount(int id, String IBAN, double balance, String value) {
+	// konstruktori
+	public BankAccount(Integer id, String IBAN, double balance, String value) {
 		this.id = id;
 		this.IBAN = IBAN;
 		this.balance = balance;
 		this.value = value;
 	}
 	
+	public BankAccount(BankAccDB accDB) {
+		this.id = accDB.getId();
+		this.IBAN = accDB.getIban();
+		this.balance = accDB.getBalance();
+		this.value = accDB.getValue();
+	}
+	
+	// getteri
+	Integer getId()			{return this.id;}
 	String getIBAN()	{return this.IBAN;}
 	String getValue()	{return this.value;}
 
@@ -89,48 +93,48 @@ class BankAccount
 
 
 
-	// dohvati podatke o racunu
-	static BankAccount getAccount(String username) throws IOException {
-		BankAccDB tmpdbacc = BankDB.findAccByOwner(username);
-		return new BankAccount(tmpdbacc.getId(), tmpdbacc.getIban(), tmpdbacc.getBalance(), tmpdbacc.getValue());
+	// dohvati podatke o racunu preko korisnickog imena
+	static BankAccount getAccountByOwner(String owner) throws Exception {
+		BankAccDB tmpdbacc = BankDB.findAccByOwner(owner);
+		return new BankAccount(tmpdbacc);
+	}
+	
+	// dohvati podatke o racunu preko IBAN-a
+	static BankAccount getAccountByIban(String iban) throws Exception {
+		BankAccDB tmpdbacc = BankDB.findAccByIban(iban);
+		return new BankAccount(tmpdbacc);
 	}
 
 
 
-	void updateAccount(String username) {
-		BankAccDB newAcc = new BankAccDB(username, this.IBAN, this.balance, this.value);
+	// zapisi podatke iz objekta u bazu podataka
+	void updateAccount(String owner) {
+		BankAccDB newAcc = new BankAccDB(owner, this.IBAN, this.balance, this.value);
 		newAcc.setId(this.id);
 		BankDB.updateAcc(newAcc);
 	}
 	
 	
 	
-	// metoda za zapisivanje podataka o racunu u korisnikovu datoteku
-//	void updateAccount(String username) throws IOException {
-//		String ePassword = User.getUserEPassword(username);
-//		try(FileWriter writer = new FileWriter(username + ".txt", false)) {
-//			// zapisi nove podatke
-//			writer.write(ePassword + "\n");
-//			writer.write(IBAN + "\n" + balance + "\n" + value + "\n");
-//		}
-//	}
-
-	// azuriraj podatke o racunu koristeci samo username i dodaj iznos 'amount' na racun
-	static void updateAccountS(String username, double amount) throws IOException {
-		// dohvati racun
-		BankAccount bankAcc = getAccount(username);
-		// dodaj 'amount'
-		bankAcc.balance += amount;
-		// zapisi nove podatke
-		bankAcc.updateAccount(username);
+	// pokusaj dohvatiti IBAN racuna koristeci ime vlasnika, ako ne uspije baca Exception
+	static String ownerToIban(String owner) throws Exception {
+		owner = BankDB.findAccByOwner(owner).getIban();
+		return owner;
 	}
 	
-	// isto kao metoda iznad samo sta nije staticka
-	void updateAccount(String username, double amount) throws IOException {
-		// dodaj 'amount'
-		this.balance += amount;
-		// zapisi nove podatke
-		this.updateAccount(username);
+	
+	
+	// obrisi racun iz baze podataka
+	static void deleteAccs(String owner) {
+//		List<BankAccDB> accList = BankDB.findAccsByOwner(owner);
+//		accList.forEach(BankAccDB -> BankDB.deleteAcc(BankAccDB));
+		BankDB.deleteAcc(BankDB.findAccByOwner(owner));
+	}
+	
+	
+	
+	BankAccM toMessage() {
+		return new BankAccM(this.IBAN, this.balance, this.value);
 	}
 
 }

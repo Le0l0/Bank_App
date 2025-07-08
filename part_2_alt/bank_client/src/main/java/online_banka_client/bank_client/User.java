@@ -121,6 +121,38 @@ class User
 	
 	
 	
+	void makePayment(double payment) {
+		try {
+			int response = (int) App.rest.postForObject(App.serverAddr + "/users/" + this.username + "/make-payment", payment, Integer.class);
+			switch (response) {
+			case 0:  System.out.println("Uplata/isplata uspjesna. \n"); break;
+			case 1:  System.out.println("Isplata neuspjesna - nedovoljno novca na racunu. \n"); break;
+			default: System.out.println("Nije moguce izvrsiti uplatu/isplatu! \n");
+			}
+		} catch (RestClientException e) {
+			System.out.println("Nemoguce izvrsiti uplatu/isplatu: " + e.getMessage());
+		}
+	}
+	
+	
+	
+	void makeTransaction(String recipient, double amount) {
+		try {
+			int response = (int) App.rest.postForObject(App.serverAddr + "/users/" + this.username + "/make-transaction", new TransactionReq(recipient, amount), Integer.class);
+			switch (response) {
+			case 0:  System.out.printf("Transakcija uspjesna. Uplaceno %.2f EUR na racun %s. \n\n", amount, recipient); break;
+			case 1:  System.out.println("Nedovoljno novca na racunu. Transakcija neuspjesna. \n"); break;
+			case 2:  System.out.println("Nije moguce dohvatiti korisnikov racun! \n"); break;
+			case 3:  System.out.println("Azuriranje racuna primatelja neuspjesno! \n"); break;
+			default: System.out.println("Doslo je do greske! \n");
+			}
+		} catch (RestClientException e) {
+			System.out.println("Nemoguce izvrsiti transakciju: " + e.getMessage());
+		}
+	}
+	
+	
+	
 	// dohvati povijest transakcija sa servera i ucitaj u objekt 'transactionList'
 	void fetchTransactionList() throws RestClientException {
 		ResponseEntity<ArrayList<TransactionM>> response = App.rest.exchange(
@@ -129,7 +161,36 @@ class User
 				null,
 				new ParameterizedTypeReference<ArrayList<TransactionM>>(){}
 		);
-		this.transactionList = Transaction.convertM(response.getBody());
+		this.transactionList = Transaction.convertMessage(response.getBody());
+	}
+	
+	
+	
+	void sortHistory(char[] sort) {
+		// sortiranje po datumu - od najstarijeg prema najnovijem
+		if (sort[0] == 'd')
+			this.transactionList.sort(new TransactionDateComparator());
+		// sortiranje po iznosu - od najmanjeg prema najvecem
+		else if (sort[0] == 'i')
+			this.transactionList.sort(new TransactionAmountComparator());
+		
+		// okreni poredak ako je korisnik tako odabrao
+		if (sort[1] == 'o')
+			for (int i = this.transactionList.size() - 2; i >= 0; i--) {
+				this.transactionList.add(this.transactionList.remove(i));
+			}
+	}
+	
+	
+	
+	int deleteUser(String passAtt) throws RestClientException {
+		// provjeri je li unesena lozinka tocna
+		boolean response = App.rest.postForObject(App.serverAddr + "/users/" + this.username + "/check-password", passAtt, boolean.class);
+		if (response == false) return 1;
+		
+		// ako je tocna lozinka, obrisi sve podatke o korisnikovom racunu
+		App.rest.delete(App.serverAddr + "/users/" + this.username);
+		return 0;
 	}
 
 }

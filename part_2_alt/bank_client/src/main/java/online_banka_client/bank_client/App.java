@@ -1,7 +1,6 @@
 package online_banka_client.bank_client;
 
 import java.util.Scanner;
-import java.util.Collections;					// za sortiranje ArrayList
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.time.LocalDate;
@@ -22,8 +21,8 @@ record TransactionM(String payer, String recipient, double amount, LocalDate dat
 public class App
 {
 	static Scanner scanner = new Scanner(System.in);
-	
-	static final RestTemplate rest = new RestTemplate();
+	// za komunikaciju sa serverom
+	static RestTemplate rest = new RestTemplate();
 	static final String serverAddr = "http://localhost:8080";
 	
 	
@@ -108,7 +107,7 @@ public class App
 		else if (choice == 'p') user = User.login();
 		
 		if (user == null) {
-			// korisnik je odabrao izlaz
+			// korisnik je odabrao izlaz iz aplikacije
 			cleanUp();
 			return;
 		}
@@ -128,15 +127,14 @@ public class App
 			if (choice == 'e') {
 				// pitaj korisnika je li siguran
 				choice = getCharStrict("Jeste li sigurni da se zelite odjaviti od aplikacije? d/n", "dn");
-				if (choice == 'd') {
-					break;
-				}
+				if (choice == 'd') break;
 			}
 			
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			// stanje racuna
 			else if (choice == 's') {
 				// dohvati racun prijavljenog korisnika i ispisi podatke
+				//
 				try {
 					BankAccM response = rest.getForObject(serverAddr + "/users/" + user.username + "/account-details", BankAccM.class);
 					if (response == null) throw new RestClientException("Server je vratio null objekt! ");
@@ -150,6 +148,7 @@ public class App
 			// uplata
 			else if (choice == 'u') {
 				// pitaj korisnika da unese iznos koji zeli uplatiti/isplatiti, te pokusaj izvrsiti uplatu/isplatu
+				//
 				double payment = 0;
 				// unos kolicine
 				while (true) {
@@ -162,23 +161,15 @@ public class App
 					}
 				}
 				
-				// pokusaj izvrsiti
-				try {
-					int response = (int) rest.postForObject(serverAddr + "/users/" + user.username + "/make-payment", payment, Integer.class);
-					switch (response) {
-					case 0:  System.out.println("Uplata/isplata uspjesna. \n"); break;
-					case 1:  System.out.println("Isplata neuspjesna - nedovoljno novca na racunu. \n"); break;
-					default: System.out.println("Nije moguce izvrsiti uplatu/isplatu! ");
-					}
-				} catch (RestClientException e) {
-					System.out.println("Nemoguce izvrsiti uplatu/isplatu: " + e.getMessage());
-				}
+				// pokusaj izvrsiti uplatu/isplatu
+				user.makePayment(payment);
 			}
 			
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			// placanje
 			else if (choice == 'p') {
-				// obavi transakciju i zapisi je u povijest transakcija platitelja i (ako je registriran u nasoj banci) primatelja
+				// obavi transakciju i zapisi je u tablicu transakcija
+				//
 				String recipient = null;
 				double amount = 0;
 				
@@ -204,74 +195,38 @@ public class App
 					return;
 				}
 				
-				// probaj izvrsiti transakciju
-				try {
-					int response = (int) rest.postForObject(serverAddr + "/users/" + user.username + "/make-transaction", new TransactionReq(recipient, amount), Integer.class);
-					switch (response) {
-					case 0:  System.out.printf("Transakcija uspjesna. Uplaceno %.2f EUR na racun %s. \n", amount, recipient); break;
-					case 1:  System.out.println("Nedovoljno novca na racunu. Transakcija neuspjesna. \n"); break;
-					case 2:  System.out.println("Nije moguce citati iz datoteke 'userIBANlist.txt'! \n"); break;
-					case 3:  System.out.println("Azuriranje racuna primatelja neuspjesno! \n"); break;
-					default: System.out.println("Doslo je do greske! \n");
-					}
-				} catch (RestClientException e) {
-					System.out.println("Nemoguce izvrsiti transakciju: " + e.getMessage());
-				}
+				// pokusaj izvrsiti transakciju
+				user.makeTransaction(recipient, amount);
 			}
 			
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-			// popis transakcija		TODO: popravi sortiranje
+			// popis transakcija
 			else if (choice == 't') {
-//				// dohvati povijest transakcija
-				try {
-					user.fetchTransactionList();
-				} catch (RestClientException e) {
+				// ispisi sortiranu povijest transakcija korisnika
+				//
+				// dohvati povijest transakcija
+				try {user.fetchTransactionList();}
+				catch (RestClientException e) {
 					System.out.println("Nemoguce dohvatiti povijest transakcija: " + e.getMessage());
 					continue;
 				}
-				
 				// ako u povijesti nema transakcija ispisi obavijest i idi dalje
 				if (user.transactionList.isEmpty()) {
 					System.out.println("U povijesti nema zapisanih transakcija. \n");
 					continue;
 				}
 				
-				// pitaj korisnika kako zeli sortirati - u datoteci su transakcije vec zapisane od najstarijih prema
-				// najnovijima, tako da ih sortiramo samo ako korisnik odabere da su sortirane po velicini
-				choice = getCharStrict("Zelite li ih sortirane prema datumu ili iznosu? \nd - po datumu, i - po iznosu", "di");
-				// po datumu
-				if (choice == 'd') {
-					choice = getCharStrict("Zelite li ih sortirane od najstrarijih prema najnovijim ili obrnuto? \nn - od najstrarijih, o - obrnuto", "no");
-					// okreni poredak ako treba
-					if (choice == 'o') {
-						Collections.reverse(user.transactionList);
-					}
-				}
-				// po iznosu
-				else {
-					// sortiraj po iznosu
-					user.transactionList.sort(new TransactionComparator());
-					choice = getCharStrict("Zelite li ih sortirane od najvecih prema najmanjima ili obrnuto? \nn - od najvecih, o - obrnuto", "no");
-					// okreni poredak ako treba
-					if (choice == 'o') {
-						Collections.reverse(user.transactionList);
-					}
-				}
+				// pitaj korisnika kako zeli sortirati
+				char[] sort = new char[2];
+				sort[0] = getCharStrict("Zelite li ih sortirane prema datumu ili iznosu? \nd - po datumu, i - po iznosu", "di");
+				if (sort[0] == 'd') sort[1] = getCharStrict("Od najnovijih prema najstarijima ili obrnuto? \nn - od najnovijih, o - obrnuto", "no");
+				if (sort[0] == 'i') sort[1] = getCharStrict("Zelite li ih sortirane od najmanjih prema najvecima ili obrnuto? \nn - od najvecih, o - obrnuto", "no");
 				
-				// dohvati IBAN korisnika - treba za lijepsi ispis
-				String userIBAN = null;
-				try {
-					BankAccM response = rest.getForObject(serverAddr + "/users/" + user.username + "/account-details", BankAccM.class);
-					if (response == null) throw new RestClientException("Server je vratio null objekt! ");
-					userIBAN = response.IBAN();
-				} catch (RestClientException e) {
-					System.out.println("Nemoguce dohvatiti podatke o racunu: " + e.getMessage());
-				}
+				// sortiraj korisnikovu povijest transakcija
+				user.sortHistory(sort);
 				
-				// ispisi transakcije
-				for (Transaction transaction : user.transactionList) {
-					transaction.printTransaction(userIBAN, user.username);
-				}
+				// ispisi sortiranu povijest transakcija
+				user.transactionList.forEach(Transaction -> Transaction.printTransaction());
 				System.out.println();
 			}
 			
@@ -302,26 +257,15 @@ public class App
 				
 				String passwordAttempt = App.getInput("Molimo vas potvrdite odluku svojom lozinkom: ", 32, false);
 				
-				// provjeri je li unesena lozinka tocna
+				// pokusaj obrisati racun
+				int retval = -1;
 				try {
-					boolean response = rest.postForObject(serverAddr + "/users/" + user.username + "/check-password", passwordAttempt, boolean.class);
-					if (response == false) {
-						System.out.println("Neispravna lozinka! \n");
-						continue;
-					}
+					retval = user.deleteUser(passwordAttempt);
 				} catch (RestClientException e) {
 					System.out.println("Greska: " + e.getMessage());
+					continue;
 				}
-				
-				// ako je tocna lozinka, obrisi sve podatke o korisnikovom racunu
-				try {
-					rest.delete(serverAddr + "/users/" + user.username);
-					System.out.println("Racun uspjesno obrisan! ");
-					user = null;
-					break;
-				} catch (RestClientException e) {
-					System.out.println("Greska: " + e.getMessage());
-				}
+				System.out.println(retval == 0 ? "Racun uspjesno obrisan! " : "Neispravna lozinka! ");
 			}
 			
 		}

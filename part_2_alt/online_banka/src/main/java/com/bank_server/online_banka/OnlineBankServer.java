@@ -12,12 +12,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-//import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.context.ApplicationContext;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 ////////////////////////////////////////////////////////////////
 import java.util.ArrayList;
 import java.time.LocalDate;
-import java.io.IOException;
 //import java.sql.SQLException;
 
 
@@ -35,12 +34,8 @@ record TransactionM(String payer, String recipient, double amount, LocalDate dat
 public class OnlineBankServer
 {
 	// treba za gasenje servera
-//	@Autowired
-//	private ApplicationContext appContext;
-	// repozitoriji za upravljanje bazom podataka
-//	static UserRepo userRepo;
-//	static TransactionRepo transactionRepo;
-//	static BankAccRepo bankaccRepo;
+	@Autowired
+	private ApplicationContext appContext;
 	// admin password - treba za usporediti ako se pokusa ugasiti server
 	private String adminPass = "pass";
 	// stanje servera - nigdje se ne mijenja (jos)
@@ -48,24 +43,8 @@ public class OnlineBankServer
 	
 	
 	
-	// konstruktor - ucitaj repozitorije
-//	private OnlineBankServer(UserRepo userRepo, TransactionRepo transactionRepo, BankAccRepo bankaccRepo) {
-//		OnlineBankServer.userRepo = userRepo;
-//		OnlineBankServer.transactionRepo = transactionRepo;
-//		OnlineBankServer.bankaccRepo = bankaccRepo;
-//	}
-	
-	
-	
 	// main - pokreni server
 	public static void main(String[] args) {
-//		try {
-//			BankDB.createTables();
-//		} catch (SQLException e) {
-//			System.out.println("Nije moguce povezati se na bazu podataka ili stvoriti potrebne tablice: " + e.getMessage());
-//			return;
-//		}
-		
 		SpringApplication.run(OnlineBankServer.class, args);
 	}
 
@@ -84,10 +63,12 @@ public class OnlineBankServer
 	}
 	
 	// gasenje servera, TODO: probaj pravilno zatvoriti
-	@GetMapping("/shutdown")
+	// nije dovoljno sigurno za upotrebu u pravoj aplikaciji, kao i neke druge stvari u ovom projektu
+	@DeleteMapping("/shutdown")
 	void shutServer(@RequestParam(value = "passAtt", defaultValue = "-") String passAtt) {
 		if (passAtt.equals(adminPass)) {
-			//SpringApplication.exit(appContext);
+			BankDB.shutdown();
+			SpringApplication.exit(appContext, () -> 0);
 		    System.exit(0);
 		}
 	}
@@ -106,9 +87,9 @@ public class OnlineBankServer
 	@GetMapping("/users/{username}/account-details")
 	BankAccM getAccDetails(@PathVariable String username) {
 		try {
-			BankAccount acc = BankAccount.getAccount(username);
-			return new BankAccM(acc.getIBAN(), acc.balance, acc.getValue());
-		} catch (IOException e) {
+			return BankAccount.getAccountByOwner(username).toMessage();
+		} catch (Exception e) {
+			System.out.println();
 			return null;
 		}
 	}

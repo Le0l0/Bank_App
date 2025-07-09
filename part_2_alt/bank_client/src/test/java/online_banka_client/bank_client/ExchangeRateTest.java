@@ -45,5 +45,9 @@ public class ExchangeRateTest
 		
 		assertEquals(13, ExchangeRate.eRateList.size());
 	}
+	
+	
+	
+	// metoda 'printExchangeRate()' se ne testira
 
 }

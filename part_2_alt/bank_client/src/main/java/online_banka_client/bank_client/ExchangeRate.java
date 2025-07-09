@@ -1,7 +1,6 @@
 package online_banka_client.bank_client;
 
-import java.util.ArrayList;
-import java.time.LocalDate;
+// za dohvacanje i citanje podataka sa interneta
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,6 +9,9 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
+// ostalo
+import java.util.ArrayList;
+import java.time.LocalDate;
 
 
 
@@ -88,7 +90,7 @@ public class ExchangeRate
         	ExchangeRate rate = new ExchangeRate();
         	
     		// citaj sve segmente i zapisuj u objekt "rate", te na kraju "rate" dodaj u ArrayList
-        	// nefleksibilan kod, mozda bolje koristiti neku knjiznicu!
+        	// TODO: nefleksibilan kod, mozda bolje koristiti neku knjiznicu
         	while (reader.read() != ']') {
         		
     			reader.skip(19);

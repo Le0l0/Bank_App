@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.TestMethodOrder;
 // ostalo
 import java.util.ArrayList;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 
 
@@ -18,8 +18,8 @@ import java.time.LocalDate;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class TransactionTest
 {
-	private static TransactionM tm1 = new TransactionM("p1", "r1", 1.0, LocalDate.now());
-	private static TransactionM tm2 = new TransactionM("p2", "r2", 2.0, LocalDate.now());
+	private static TransactionM tm1 = new TransactionM("p1", "r1", 1.0, LocalDateTime.now());
+	private static TransactionM tm2 = new TransactionM("p2", "r2", 2.0, LocalDateTime.now());
 	private static ArrayList<TransactionM> tMList = new ArrayList<TransactionM>();
 
 	
@@ -37,13 +37,17 @@ class TransactionTest
 	
 	
 	
+	// metoda 'printTransaction()' se ne testira
+	
+	
+	
 	@Test
 	@Order(01)
 	public void test_convertMessage() { // cudan test
 		ArrayList<Transaction> list = Transaction.convertMessage(tMList);
 		
 		for (Transaction el : list) {
-			if (el == null || el.payer == null || el.recipient == null || el.amount == 0 || el.date == null) {
+			if (el == null || el.payer == null || el.recipient == null || el.amount == 0 || el.dateTime == null) {
 				fail("Nesto ne valja u metodi 'convertMessage()'! ");
 			}
 		}

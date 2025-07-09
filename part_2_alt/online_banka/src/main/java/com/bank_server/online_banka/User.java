@@ -1,6 +1,6 @@
 package com.bank_server.online_banka;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 
 
@@ -155,7 +155,7 @@ class User
 		}
 		
 		// spremi transakciju u povijest transakcija
-		BankDB.saveTransaction(new TransactionDB(account.getIBAN(), recipient, amount, LocalDate.now()));
+		BankDB.saveTransaction(new TransactionDB(account.getIBAN(), recipient, amount, LocalDateTime.now()));
 		
 		// transakcija uspjesna
 		return retval;

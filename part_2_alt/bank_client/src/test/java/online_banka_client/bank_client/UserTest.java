@@ -17,7 +17,7 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 // ostalo
 import java.util.Scanner;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
@@ -191,9 +191,9 @@ class UserTest
 		User user = new User("test");
 		// popis transakcija
 		ArrayList<TransactionM> list = new ArrayList<TransactionM>();
-		list.add(new TransactionM("a", "b", 1, LocalDate.now()));
-		list.add(new TransactionM("b", "a", 2, LocalDate.now()));
-		list.add(new TransactionM("a", "c", 3, LocalDate.now()));
+		list.add(new TransactionM("a", "b", 1, LocalDateTime.now()));
+		list.add(new TransactionM("b", "a", 2, LocalDateTime.now()));
+		list.add(new TransactionM("a", "c", 3, LocalDateTime.now()));
 		
 		// mock
 		when(App.rest.exchange(

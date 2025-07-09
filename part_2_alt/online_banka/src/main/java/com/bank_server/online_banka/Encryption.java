@@ -2,7 +2,6 @@ package com.bank_server.online_banka;
 
 import java.math.BigInteger;
 import java.security.MessageDigest;
-////////////////////////////////////////////////////////////////
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;

@@ -1,19 +1,20 @@
 package online_banka_client.bank_client;
 
+//za komunikaciju sa serverom
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.RestClientException;
+// ostalo
 import java.util.Scanner;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.time.LocalDate;
-////////////////////////////////////////////////////////////////
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.client.RestClientException;
+import java.time.LocalDateTime;
 
 
-//tipovi poruka - objekti za komunikaciju (DTOs)
+// tipovi poruka - objekti za komunikaciju (DTOs)
 record UserM(String username, String password, char encryption) {}
 record BankAccM(String IBAN, double balance, String value) {}
 record TransactionReq(String recipient, double amount) {}
-record TransactionM(String payer, String recipient, double amount, LocalDate date) {}
+record TransactionM(String payer, String recipient, double amount, LocalDateTime dateTime) {}
 
 
 

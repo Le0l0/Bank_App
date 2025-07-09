@@ -13,7 +13,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 // ostalo
 import java.util.List;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 
 
@@ -47,6 +47,7 @@ class BankDB
 	////////////////////////////////////////////////////////////////
 	/// metode za tablicu users									 ///
 	////////////////////////////////////////////////////////////////
+	
 	static void saveUser(UserDB user) {
 		Session session = getSessionFactory().openSession();
 		session.beginTransaction();
@@ -79,6 +80,7 @@ class BankDB
 	////////////////////////////////////////////////////////////////
 	/// metode za tablicu accounts								 ///
 	////////////////////////////////////////////////////////////////
+	
 	static void saveAcc(BankAccDB acc) {
 		Session session = getSessionFactory().openSession();
 		session.beginTransaction();
@@ -129,6 +131,7 @@ class BankDB
 	////////////////////////////////////////////////////////////////
 	/// metode za tablicu transactions							 ///
 	////////////////////////////////////////////////////////////////
+	
 	static void saveTransaction(TransactionDB trans) {
 		Session session = getSessionFactory().openSession();
 		session.beginTransaction();
@@ -189,14 +192,14 @@ class UserDB implements Serializable
 	}
 
 	// getteri
-	public Integer getId()			 			{return this.id;}
-	public String getUsername() 				{return this.username;}
-	public String getEPassword() 				{return this.ePassword;}
+	public Integer getId()			 				{return this.id;}
+	public String getUsername() 					{return this.username;}
+	public String getEPassword() 					{return this.ePassword;}
 	
 	// setteri
-	public void setId(Integer id) 				{this.id = id;}
-	public void setUsername(String username) 	{this.username = username;}
-	public void setEPassword(String ePassword) 	{this.ePassword = ePassword;}
+	public void setId(Integer id) 					{this.id = id;}
+	public void setUsername(String username) 		{this.username = username;}
+	public void setEPassword(String ePassword) 		{this.ePassword = ePassword;}
 
 }
 
@@ -225,18 +228,18 @@ class BankAccDB implements Serializable
 	}
 
 	// getteri
-	public Integer getId() 						{return this.id;}
-	public String getOwner() 					{return this.owner;}
-	public String getIban() 					{return this.iban;}
-	public double getBalance()	 				{return this.balance;}
-	public String getValue()	 				{return this.value;}
+	public Integer getId() 							{return this.id;}
+	public String getOwner() 						{return this.owner;}
+	public String getIban() 						{return this.iban;}
+	public double getBalance()	 					{return this.balance;}
+	public String getValue()	 					{return this.value;}
 	
 	// setteri
-	public void setId(Integer id) 				{this.id = id;}
-	public void setOwner(String owner) 			{this.owner = owner;}
-	public void setIban(String iban) 			{this.iban = iban;}
-	public void setBalance(double balance)	 	{this.balance = balance;}
-	public void setValue(String value)	 		{this.value = value;}
+	public void setId(Integer id) 					{this.id = id;}
+	public void setOwner(String owner) 				{this.owner = owner;}
+	public void setIban(String iban) 				{this.iban = iban;}
+	public void setBalance(double balance)	 		{this.balance = balance;}
+	public void setValue(String value)	 			{this.value = value;}
 
 }
 
@@ -253,29 +256,29 @@ class TransactionDB implements Serializable
 	private String payer;
 	private String recipient;
 	private double amount;
-	private LocalDate date;
+	private LocalDateTime dateTime;
 	
 	// hibernate expects entities to have a no-arg constructor, though it does not necessarily have to be public
 	TransactionDB() {}
-	public TransactionDB(String payer, String recipient, double amount, LocalDate date) {
+	public TransactionDB(String payer, String recipient, double amount, LocalDateTime dateTime) {
 		this.payer = payer;
 		this.recipient = recipient;
 		this.amount = amount;
-		this.date = date;
+		this.dateTime = dateTime;
 	}
 
 	// getteri
-	public Integer getId() 						{return this.id;}
-	public String getPayer() 					{return this.payer;}
-	public String getRecipient() 				{return this.recipient;}
-	public double getAmount()	 				{return this.amount;}
-	public LocalDate getDate() 					{return this.date;}
+	public Integer getId() 							{return this.id;}
+	public String getPayer() 						{return this.payer;}
+	public String getRecipient() 					{return this.recipient;}
+	public double getAmount()	 					{return this.amount;}
+	public LocalDateTime getDateTime() 				{return this.dateTime;}
 	
 	// setteri
-	public void setId(Integer id) 				{this.id = id;}
-	public void setPayer(String payer) 			{this.payer = payer;}
-	public void setRecipient(String recipient)	{this.recipient = recipient;}
-	public void setAmount(double amount)	 	{this.amount = amount;}
-	public void setDate(LocalDate date) 		{this.date = date;}
+	public void setId(Integer id) 					{this.id = id;}
+	public void setPayer(String payer) 				{this.payer = payer;}
+	public void setRecipient(String recipient)		{this.recipient = recipient;}
+	public void setAmount(double amount)	 		{this.amount = amount;}
+	public void setDateTime(LocalDateTime dateTime)	{this.dateTime = dateTime;}
 
 }

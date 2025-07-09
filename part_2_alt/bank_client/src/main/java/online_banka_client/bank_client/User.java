@@ -1,11 +1,12 @@
 package online_banka_client.bank_client;
 
-import java.util.ArrayList;
-////////////////////////////////////////////////////////////////
+// za komunikaciju sa serverom
 import org.springframework.web.client.RestClientException;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+// ostalo
+import java.util.ArrayList;
 
 
 

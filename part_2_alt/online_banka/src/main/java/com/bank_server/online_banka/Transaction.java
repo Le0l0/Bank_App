@@ -23,7 +23,7 @@ class Transaction
 		// prebaci sve objekte iz liste 2 u listu 1
 		tmp2.forEach(TransactionDB -> tmp1.add(TransactionDB));
 		// sve elemente iz liste 1 prebaci u ArrayList koji vracamo
-		tmp1.forEach(TransactionDB -> list.add(new TransactionM(TransactionDB.getPayer(), TransactionDB.getRecipient(), TransactionDB.getAmount(), TransactionDB.getDate())));
+		tmp1.forEach(TransactionDB -> list.add(new TransactionM(TransactionDB.getPayer(), TransactionDB.getRecipient(), TransactionDB.getAmount(), TransactionDB.getDateTime())));
 		
 		return list;
 	}

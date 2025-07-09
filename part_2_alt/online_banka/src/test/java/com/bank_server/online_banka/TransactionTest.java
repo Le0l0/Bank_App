@@ -12,7 +12,7 @@ import org.junit.jupiter.api.TestMethodOrder;
 //ostalo
 import java.util.ArrayList;
 import java.util.List;
-import java.time.LocalDate;
+//import java.time.LocalDateTime;
 
 
 
@@ -27,6 +27,9 @@ class TransactionTest
 	private static char encryption = 's';
 	private static String iban1 = null;
 	private static String iban2 = null;
+	
+	// zapisano vrijeme (localDateTime) se ne provjerava je li dobro pohranjeno u bazu podataka zato sto 
+	// je LocalDateTime "precizniji" od tipa podatka za vrijeme od 'postgreSQL'-a pa se "zaokruzuje"
 	
 	
 	
@@ -80,17 +83,17 @@ class TransactionTest
 				() -> assertEquals(iban1, list.get(0).payer()),
 				() -> assertEquals("recipient", list.get(0).recipient()),
 				() -> assertEquals(20, list.get(0).amount()),
-				() -> assertEquals(LocalDate.now(), list.get(0).date()),
+//				() -> assertEquals(LocalDateTime.now(), list.get(0).dateTime()),
 				// druga transakcija
 				() -> assertEquals(iban1, list.get(1).payer()),
 				() -> assertEquals(iban2, list.get(1).recipient()),
 				() -> assertEquals(10, list.get(1).amount()),
-				() -> assertEquals(LocalDate.now(), list.get(1).date()),
+//				() -> assertEquals(LocalDateTime.now(), list.get(1).dateTime()),
 				// treca transakcija
 				() -> assertEquals(iban2, list.get(2).payer()),
 				() -> assertEquals(iban1, list.get(2).recipient()),
-				() -> assertEquals(30, list.get(2).amount()),
-				() -> assertEquals(LocalDate.now(), list.get(2).date())
+				() -> assertEquals(30, list.get(2).amount())
+//				() -> assertEquals(LocalDateTime.now(), list.get(2).dateTime())
 		);
 	}
 

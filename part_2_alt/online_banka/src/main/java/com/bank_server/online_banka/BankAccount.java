@@ -36,10 +36,10 @@ class BankAccount
 	}
 	
 	// getteri
-	Integer getId()			{return this.id;}
+	Integer getId()		{return this.id;}
 	String getIBAN()	{return this.IBAN;}
 	String getValue()	{return this.value;}
-
+	
 
 
 	// ucitaj zadnji koristeni IBAN iz memeorije u staticku varijablu 'lastIBAN'
@@ -80,7 +80,7 @@ class BankAccount
 
 		lastIBAN++;
 
-		// odmah zapisi novi zanji koristeni IBAN
+		// odmah zapisi novi zadnji koristeni IBAN
 		try {
 			writeLastIBAN();
 		} catch (IOException e) {
@@ -133,7 +133,7 @@ class BankAccount
 	
 	
 	
-	BankAccM toMessage() {
+	public BankAccM toMessage() {
 		return new BankAccM(this.IBAN, this.balance, this.value);
 	}
 

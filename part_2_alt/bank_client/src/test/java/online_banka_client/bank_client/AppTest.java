@@ -4,13 +4,18 @@ package online_banka_client.bank_client;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.springframework.web.client.RestClientException;
+// mockito
+import static org.mockito.Mockito.*;
 // ostalo
 import java.util.Scanner;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
+
 
 
 
@@ -21,6 +26,11 @@ public class AppTest
 	
 	
 
+	@BeforeEach
+	public void TEST_set_up_each() {
+		App.rest = mock(RestTemplate.class);
+	}
+	
 	@BeforeAll
 	public static void TEST_initialize() {
 		// nista
@@ -45,8 +55,8 @@ public class AppTest
 		String inputSpace = App.getInput("test", 3, false);
 		
 		assertAll(
-				() -> assertTrue(inputNoSpace.equals("abc")),
-				() -> assertTrue(inputSpace.equals("a b"))
+				() -> assertEquals("abc", inputNoSpace),
+				() -> assertEquals("a b", inputSpace)
 		);
 	}
 	
@@ -85,15 +95,19 @@ public class AppTest
 	@Test
 	@Order(04)
 	public void test_server() {
-		// ocekuje se da server nije pokrenut
+		// mock
+		when(App.rest.getForObject(App.serverAddr + "/", String.class))
+		.thenReturn("hello");	// server je pokrenut
+		
+		// testiranje
+		String response = null;
 		try {
-			String response = App.rest.getForObject(App.serverAddr + "/", String.class);
-			if (response.equals("hello") == true)
-				fail("Srever je pokrenut - testovi nece davati dobre rezultate! ");
+			response = App.rest.getForObject(App.serverAddr + "/", String.class);
 		} catch (RestClientException e) {
-			// server se ne moze dohvatiti
-			assertTrue(true);
+			fail("Mock ne radi! ");
 		}
+		
+		assertEquals("hello", response);
 	}
 	
 }

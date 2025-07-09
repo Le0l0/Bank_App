@@ -39,7 +39,7 @@ class BankDBTest
 		// stvori transakcije
 		trans1 = new TransactionDB(iban, "recipient1", 10, LocalDate.now());
 		trans2 = new TransactionDB(iban, "recipient2", 10, LocalDate.now());
-		
+		// spremi 'trans2' u bazu podataka ('trans1' se sprema u testu)
 		BankDB.saveTransaction(trans2);
 	}
 	
@@ -59,15 +59,17 @@ class BankDBTest
 	@Test
 	@Order(01)
 	public void test_saveUser() {
+		// spremi korisnika u bazu podataka
 		BankDB.saveUser(user);
 		
+		// dohvati spremljenog korisnika iz baze podataka
 		Session session = BankDB.getSessionFactory().openSession();
 		UserDB saved = session.createQuery("FROM UserDB WHERE username = :username", UserDB.class).setParameter("username", username).uniqueResult();
 		session.close();
 		
 		assertAll(
-				() -> assertTrue(user.getUsername().equals(saved.getUsername())),
-				() -> assertTrue(user.getEPassword().equals(saved.getEPassword()))
+				() -> assertEquals(user.getUsername(), saved.getUsername()),
+				() -> assertEquals(user.getEPassword(), saved.getEPassword())
 				);
 	}
 	
@@ -87,8 +89,8 @@ class BankDBTest
 		UserDB found = BankDB.findUserByUsername(username);
 		
 		assertAll(
-				() -> assertTrue(user.getUsername().equals(found.getUsername())),
-				() -> assertTrue(user.getEPassword().equals(found.getEPassword()))
+				() -> assertEquals(user.getUsername(), found.getUsername()),
+				() -> assertEquals(user.getEPassword(), found.getEPassword())
 				);
 	}
 	
@@ -97,17 +99,19 @@ class BankDBTest
 	@Test
 	@Order(04)
 	public void test_saveAcc() {
+		// spremi racun u bazu podataka
 		BankDB.saveAcc(acc);
 		
+		// dohvati spremljeni racun iz baze podataka
 		Session session = BankDB.getSessionFactory().openSession();
 		BankAccDB saved = session.createQuery("FROM BankAccDB WHERE owner = :owner", BankAccDB.class).setParameter("owner", username).uniqueResult();
 		session.close();
 		
 		assertAll(
-				() -> assertTrue(acc.getOwner().equals(saved.getOwner())),
-				() -> assertTrue(acc.getIban().equals(saved.getIban())),
-				() -> assertTrue(acc.getBalance() == saved.getBalance()),
-				() -> assertTrue(acc.getValue().equals(saved.getValue()))
+				() -> assertEquals(acc.getOwner(), saved.getOwner()),
+				() -> assertEquals(acc.getIban(), saved.getIban()),
+				() -> assertEquals(acc.getBalance(), saved.getBalance()),
+				() -> assertEquals(acc.getValue(), saved.getValue())
 				);
 	}
 	
@@ -119,10 +123,10 @@ class BankDBTest
 		BankAccDB found = BankDB.findAccByOwner(username);
 		
 		assertAll(
-				() -> assertTrue(acc.getOwner().equals(found.getOwner())),
-				() -> assertTrue(acc.getIban().equals(found.getIban())),
-				() -> assertTrue(acc.getBalance() == found.getBalance()),
-				() -> assertTrue(acc.getValue().equals(found.getValue()))
+				() -> assertEquals(acc.getOwner(), found.getOwner()),
+				() -> assertEquals(acc.getIban(), found.getIban()),
+				() -> assertEquals(acc.getBalance(), found.getBalance()),
+				() -> assertEquals(acc.getValue(), found.getValue())
 				);
 	}
 	
@@ -131,21 +135,24 @@ class BankDBTest
 	@Test
 	@Order(06)
 	public void test_updateAcc() {
+		// spremi racun prije azuriranja
 		BankAccDB old_acc = new BankAccDB(acc.getOwner(), acc.getIban(), acc.getBalance(), acc.getValue());
 		
+		// postavi novo stanje i azuriraj
 		acc.setBalance(200);
 		BankDB.updateAcc(acc);
 		
+		// dohvati spremljeni racun
 		Session session = BankDB.getSessionFactory().openSession();
 		acc = session.createQuery("FROM BankAccDB WHERE owner = :owner", BankAccDB.class).setParameter("owner", username).uniqueResult();
 		session.close();
 		
 		assertAll(
-				() -> assertTrue(acc.getOwner().equals(old_acc.getOwner())),
-				() -> assertTrue(acc.getIban().equals(old_acc.getIban())),
-				() -> assertTrue(acc.getBalance() == 200),
-				() -> assertTrue(old_acc.getBalance() == 100),
-				() -> assertTrue(acc.getValue().equals(old_acc.getValue()))
+				() -> assertEquals(old_acc.getOwner(), acc.getOwner()),
+				() -> assertEquals(old_acc.getIban(), acc.getIban()),
+				() -> assertEquals(200, acc.getBalance()),
+				() -> assertEquals(100, old_acc.getBalance()),
+				() -> assertEquals(old_acc.getValue(), acc.getValue())
 				);
 	}
 	
@@ -154,17 +161,19 @@ class BankDBTest
 	@Test
 	@Order(07)
 	public void test_saveTransaction() {
+		// spremi transakciju u bazu podataka
 		BankDB.saveTransaction(trans1);
 		
+		// dohvati spremljenu transakciju iz baze podataka
 		Session session = BankDB.getSessionFactory().openSession();
 		TransactionDB saved = session.createQuery("FROM TransactionDB WHERE recipient = :recipient", TransactionDB.class).setParameter("recipient", "recipient1").uniqueResult();
 		session.close();
 		
 		assertAll(
-				() -> assertTrue(trans1.getPayer().equals(saved.getPayer())),
-				() -> assertTrue(trans1.getRecipient().equals(saved.getRecipient())),
-				() -> assertTrue(trans1.getAmount() == saved.getAmount()),
-				() -> assertTrue(trans1.getDate().equals(saved.getDate()))
+				() -> assertEquals(trans1.getPayer(), saved.getPayer()),
+				() -> assertEquals(trans1.getRecipient(), saved.getRecipient()),
+				() -> assertEquals(trans1.getAmount(), saved.getAmount()),
+				() -> assertEquals(trans1.getDate(), saved.getDate())
 				);
 	}
 	
@@ -173,27 +182,22 @@ class BankDBTest
 	@Test
 	@Order( 8)
 	public void test_findTransByPayer() {
+		// dohvati listu transakcija iz baze podataka
 		List<TransactionDB> foundList = BankDB.findTransByPayer(iban);
 		
 		TransactionDB saved1 = foundList.get(1);
 		TransactionDB saved2 = foundList.get(0);
-		
-//		System.out.println("\n\n\n");
-//		System.out.println(trans1.getPayer() + " " + trans1.getRecipient() + " " + trans1.getAmount() + " " + trans1.getDate());
-//		System.out.println(saved1.getPayer() + " " + saved1.getRecipient() + " " + saved1.getAmount() + " " + saved1.getDate());
-//		System.out.println("\n\n\n");
-		
 		assertAll(
 				// transakcija 1
-				() -> assertTrue(trans1.getPayer().equals(saved1.getPayer())),
-				() -> assertTrue(trans1.getRecipient().equals(saved1.getRecipient())),
-				() -> assertTrue(trans1.getAmount() == saved1.getAmount()),
-				() -> assertTrue(trans1.getDate().toString().equals(saved1.getDate().toString())),
+				() -> assertEquals(trans1.getPayer(), saved1.getPayer()),
+				() -> assertEquals(trans1.getRecipient(), saved1.getRecipient()),
+				() -> assertEquals(trans1.getAmount(), saved1.getAmount()),
+				() -> assertEquals(trans1.getDate(), saved1.getDate()),
 				// trasakcija 2
-				() -> assertTrue(trans2.getPayer().equals(saved2.getPayer())),
-				() -> assertTrue(trans2.getRecipient().equals(saved2.getRecipient())),
-				() -> assertTrue(trans2.getAmount() == saved2.getAmount()),
-				() -> assertTrue(trans2.getDate().toString().equals(saved2.getDate().toString()))
+				() -> assertEquals(trans2.getPayer(), saved2.getPayer()),
+				() -> assertEquals(trans2.getRecipient(), saved2.getRecipient()),
+				() -> assertEquals(trans2.getAmount(), saved2.getAmount()),
+				() -> assertEquals(trans2.getDate(), saved2.getDate())
 				);
 	}
 	
@@ -202,15 +206,15 @@ class BankDBTest
 	@Test
 	@Order( 9)
 	public void test_findTransByRecipient() {
+		// dohvati listu transakcija iz baze podataka
 		List<TransactionDB> foundList = BankDB.findTransByRecipient("recipient2");
 		
 		TransactionDB saved = foundList.get(0);
-		
 		assertAll(
-				() -> assertTrue(trans2.getPayer().equals(saved.getPayer())),
-				() -> assertTrue(trans2.getRecipient().equals(saved.getRecipient())),
-				() -> assertTrue(trans2.getAmount() == saved.getAmount()),
-				() -> assertTrue(trans2.getDate().equals(saved.getDate()))
+				() -> assertEquals(trans2.getPayer(), saved.getPayer()),
+				() -> assertEquals(trans2.getRecipient(), saved.getRecipient()),
+				() -> assertEquals(trans2.getAmount(), saved.getAmount()),
+				() -> assertEquals(trans2.getDate(), saved.getDate())
 				);
 	}
 	
@@ -219,8 +223,10 @@ class BankDBTest
 	@Test
 	@Order(10)
 	public void test_deleteUser() {
+		// obrisi korisnika iz baze podataka
 		BankDB.deleteUserByUsername(username);
 		
+		// probaj dohvatiti korisnika iz baze podataka
 		Session session = BankDB.getSessionFactory().openSession();
 		UserDB result = session.createQuery("FROM UserDB WHERE username = :username", UserDB.class).setParameter("username", username).uniqueResult();
 		session.close();
@@ -233,8 +239,10 @@ class BankDBTest
 	@Test
 	@Order(11)
 	public void test_deleteAcc() {
+		// obrisi racun iz baze podataka
 		BankDB.deleteAcc(BankDB.findAccByOwner(username));
 		
+		// probaj dohvatiti racun iz baze podataka
 		Session session = BankDB.getSessionFactory().openSession();
 		BankAccDB result = session.createQuery("FROM BankAccDB WHERE owner = :owner", BankAccDB.class).setParameter("owner", username).uniqueResult();
 		session.close();

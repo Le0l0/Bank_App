@@ -65,7 +65,8 @@ class User
 	
 	// dohvati enkriptiranu lozinku
 	protected static String getUserEPassword(String username) {
-		return BankDB.findUserByUsername(username).getEPassword();
+		UserDB user = BankDB.findUserByUsername(username);
+		return user == null ? null : user.getEPassword();
 	}
 	
 	

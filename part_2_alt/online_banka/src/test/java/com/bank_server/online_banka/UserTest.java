@@ -10,7 +10,6 @@ import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.TestMethodOrder;
 // ostalo
-//import org.hibernate.Session;
 import java.util.List;
 
 
@@ -116,6 +115,7 @@ class UserTest
 	public void test_makePayment() {
 		double balance0 = -1, balance1 = -1, balance2 = -1;
 		
+		// izvrsi uplate/isplate
 		int response0 = (int) User.makePayment(username1, 101.0);
 		try {balance0 = BankAccount.getAccountByOwner(username1).balance;} catch (Exception e) {}
 		int response1 = (int) User.makePayment(username1, -1000.0);
@@ -144,6 +144,7 @@ class UserTest
 	@Test
 	@Order(06)
 	public void test_makeTransaction() {
+		// izvrsi transakcije
 		int response0 = (int) User.makeTransaction(username1, username2, 10.0);
 		int response1a = (int) User.makeTransaction(username1, username2, 0.0);
 		int response1b = (int) User.makeTransaction(username1, username2, 200.0);
@@ -168,8 +169,10 @@ class UserTest
 	@Test
 	@Order(07)
 	public void test_deleteUser() {
+		// obrisi korisnika i njegov racun iz baze podataka
 		User.deleteUser(username1);
 		
+		// pokusaj dohvatiti izbrisanog korisnika i njegov racun
 		Session session = BankDB.getSessionFactory().openSession();
 		UserDB userDB = session.createQuery("FROM UserDB WHERE username = :username", UserDB.class).setParameter("username", username1).uniqueResult();
 		BankAccDB bankAccDB = session.createQuery("FROM BankAccDB WHERE owner = :owner", BankAccDB.class).setParameter("owner", username1).uniqueResult();

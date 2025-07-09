@@ -45,11 +45,12 @@ class BankAccountTest
 	@Test
 	@Order(01)
 	public void test_getNewIBAN() {
+		// spremi novi IBAN
 		String newIBAN = BankAccount.getNewIBAN();
 		
 		assertAll(
 				() -> assertNotNull(newIBAN),
-    			() -> assertFalse(newIBAN.equals("HR" + String.format("%032d", 0)))
+    			() -> assertNotEquals(("HR" + String.format("%032d", 0)), newIBAN)
 				);
 	}
 	
@@ -58,6 +59,7 @@ class BankAccountTest
 	@Test
 	@Order(02)
 	public void test_getAccountByOwner() {
+		// dohvati racun preko imena vlasnika
 		BankAccount tmpacc = null;
 		try {
 			tmpacc = BankAccount.getAccountByOwner(owner);
@@ -78,6 +80,7 @@ class BankAccountTest
 	@Test
 	@Order(03)
 	public void test_getAccountByIban() {
+		// dohvati racun preko IBAN-a
 		BankAccount tmpacc = null;
 		try {
 			tmpacc = BankAccount.getAccountByIban(iban);
@@ -98,6 +101,7 @@ class BankAccountTest
 	@Test
 	@Order(04)
 	public void test_updateAccount() {
+		// dodaj 10 na stanje i azururaj racun
 		acc.balance += 10;
 		acc.updateAccount(owner);
 		
@@ -116,6 +120,7 @@ class BankAccountTest
 		String result1 = null;
 		String result2 = null;
 		
+		// probaj dohvatiti IBAN-ove racuna preko imena vlasnika
 		try {
 			result1 = BankAccount.ownerToIban(owner);
 		} catch (Exception e) {}
@@ -125,7 +130,7 @@ class BankAccountTest
 		
 		final String result1F = result1, result2F = result2;
 		assertAll(
-    			() -> assertTrue(result1F.equals(iban)),
+    			() -> assertEquals(iban, result1F),
     			() -> assertNull(result2F)
 				);
 	}
@@ -135,8 +140,10 @@ class BankAccountTest
 	@Test
 	@Order(06)
 	public void test_deleteAccs() {
+		// obrisi racun iz baze podataka
 		BankAccount.deleteAccs(owner);
 		
+		// pokusaj dohvatiti izbrisani racun
 		Session session = BankDB.getSessionFactory().openSession();
 		BankAccDB tmpdbacc = session.createQuery("FROM BankAccDB WHERE iban = :iban", BankAccDB.class).setParameter("iban", iban).uniqueResult();
 		session.close();

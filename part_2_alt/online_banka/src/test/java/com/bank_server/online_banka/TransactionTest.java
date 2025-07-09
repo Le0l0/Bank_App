@@ -72,24 +72,25 @@ class TransactionTest
 	@Test
 	@Order(01)
 	public void test_getTransactionList() {
+		// dohvati listu transakcija
 		ArrayList<TransactionM> list = Transaction.getTransactionList(username1);
 		
 		assertAll(
 				// prva transakcija
-				() -> assertTrue(list.get(0).payer().equals(iban1)),
-				() -> assertTrue(list.get(0).recipient().equals("recipient")),
-				() -> assertTrue(list.get(0).amount() == 20.0),
-				() -> assertTrue(list.get(0).date().equals(LocalDate.now())),
+				() -> assertEquals(iban1, list.get(0).payer()),
+				() -> assertEquals("recipient", list.get(0).recipient()),
+				() -> assertEquals(20, list.get(0).amount()),
+				() -> assertEquals(LocalDate.now(), list.get(0).date()),
 				// druga transakcija
-				() -> assertTrue(list.get(1).payer().equals(iban1)),
-				() -> assertTrue(list.get(1).recipient().equals(iban2)),
-				() -> assertTrue(list.get(1).amount() == 10.0),
-				() -> assertTrue(list.get(1).date().equals(LocalDate.now())),
+				() -> assertEquals(iban1, list.get(1).payer()),
+				() -> assertEquals(iban2, list.get(1).recipient()),
+				() -> assertEquals(10, list.get(1).amount()),
+				() -> assertEquals(LocalDate.now(), list.get(1).date()),
 				// treca transakcija
-				() -> assertTrue(list.get(2).payer().equals(iban2)),
-				() -> assertTrue(list.get(2).recipient().equals(iban1)),
-				() -> assertTrue(list.get(2).amount() == 30.0),
-				() -> assertTrue(list.get(2).date().equals(LocalDate.now()))
+				() -> assertEquals(iban2, list.get(2).payer()),
+				() -> assertEquals(iban1, list.get(2).recipient()),
+				() -> assertEquals(30, list.get(2).amount()),
+				() -> assertEquals(LocalDate.now(), list.get(2).date())
 		);
 	}
 

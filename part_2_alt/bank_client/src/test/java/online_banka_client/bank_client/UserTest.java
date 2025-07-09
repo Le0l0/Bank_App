@@ -31,7 +31,7 @@ import org.springframework.web.client.RestClientException;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class UserTest
 {
-//	private static ArrayList<Transaction> tranList = null;
+	private static ArrayList<Transaction> tranList = new ArrayList<Transaction>();
 	// za mijenjanje izlaza, odnosno gdje se ispisuje
 	private static final PrintStream stdout = System.out;
 	
@@ -76,7 +76,7 @@ class UserTest
         assertAll(
         		() -> assertNull(userFail),
         		() -> assertNotNull(userSuccess),
-        		() -> assertTrue(userSuccess.username.equals("aaa"))
+        		() -> assertEquals("aaa", userSuccess.username)
 		);
 	}
 	
@@ -212,21 +212,21 @@ class UserTest
 		}
 		
 		// spremi popis transakcija za druge testove
-//		tranList = user.transactionList;
+		user.transactionList.forEach(t -> tranList.add(t));
 		
 		assertAll(
 				// prva transakcija
-        		() -> assertTrue(user.transactionList.get(0).payer.equals("a")),
-        		() -> assertTrue(user.transactionList.get(0).recipient.equals("b")),
-        		() -> assertTrue(user.transactionList.get(0).amount == 1),
-        		// druga transakcija?
-        		() -> assertTrue(user.transactionList.get(2).payer.equals("a")),
-        		() -> assertTrue(user.transactionList.get(2).recipient.equals("c")),
-        		() -> assertTrue(user.transactionList.get(2).amount == 3),
-        		// treca transakcija?
-        		() -> assertTrue(user.transactionList.get(1).payer.equals("b")),
-        		() -> assertTrue(user.transactionList.get(1).recipient.equals("a")),
-        		() -> assertTrue(user.transactionList.get(1).amount == 2)
+        		() -> assertEquals("a", user.transactionList.get(0).payer),
+        		() -> assertEquals("b", user.transactionList.get(0).recipient),
+        		() -> assertEquals( 1 , user.transactionList.get(0).amount),
+        		// druga transakcija
+        		() -> assertEquals("b", user.transactionList.get(1).payer),
+        		() -> assertEquals("a", user.transactionList.get(1).recipient),
+        		() -> assertEquals( 2 , user.transactionList.get(1).amount),
+        		// treca transakcija
+        		() -> assertEquals("a", user.transactionList.get(2).payer),
+        		() -> assertEquals("c", user.transactionList.get(2).recipient),
+        		() -> assertEquals( 3 , user.transactionList.get(2).amount)
         		);
 	}
 	
@@ -235,15 +235,30 @@ class UserTest
 	@Test
 	@Order(06)
 	public void test_sortHistory() {
-		// TODO: kako testirati?
-		assertTrue(true);
+		// stvori korisnika preko kojeg cemo pozivati metodu koju testiramo
+		User user = new User("test");
+		// dodaj transakcije u 'user.transactionList'
+		tranList.forEach(t -> user.transactionList.add(t));
+		
+		// testiranje
+		char[] sort = {'i', 'o'};
+		user.sortHistory(sort);
+		
+		assertAll(
+				// prva transakcija
+        		() -> assertEquals(3, user.transactionList.get(0).amount),
+        		// druga transakcija
+        		() -> assertEquals(2, user.transactionList.get(1).amount),
+        		// treca transakcija
+        		() -> assertEquals(1, user.transactionList.get(2).amount)
+        		);
 	}
 	
 	
 	
 	@Test
 	@Order(07)
-	public void test_deleteUser() {	// TODO: glupi test?
+	public void test_deleteUser() {
 		// stvori korisnika preko kojeg cemo pozivati metodu koju testiramo
 		User user = new User("test");
 		
@@ -260,8 +275,8 @@ class UserTest
 		int result0 = user.deleteUser("tocan_password");
 		
 		assertAll(
-        		() -> assertTrue(result1 == 1),
-        		() -> assertTrue(result0 == 0)
+        		() -> assertEquals(1, result1),
+        		() -> assertEquals(0, result0)
         		);
 	}
 

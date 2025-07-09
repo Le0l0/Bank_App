@@ -265,7 +265,12 @@ public class App
 					System.out.println("Greska: " + e.getMessage());
 					continue;
 				}
-				System.out.println(retval == 0 ? "Racun uspjesno obrisan! " : "Neispravna lozinka! ");
+				if (retval == 0) {
+					System.out.println("Racun uspjesno obrisan! ");
+					break;
+				} else if (retval == 1) {
+					System.out.println("Neispravna lozinka! ");
+				}
 			}
 			
 		}

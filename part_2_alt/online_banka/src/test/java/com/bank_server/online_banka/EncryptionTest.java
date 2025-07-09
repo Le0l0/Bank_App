@@ -40,7 +40,7 @@ class EncryptionTest
 		String ePassword = Encryption.encryptAES(password1);
 		String tmpPassword = Encryption.decryptAES(ePassword);
 		
-		assertTrue(tmpPassword.equals(password1));
+		assertEquals(password1, tmpPassword);
 	}
 	
 	
@@ -53,8 +53,8 @@ class EncryptionTest
 		String ePassword2 = Encryption.encryptSHA(password2);
 		
 		assertAll(
-				() -> assertTrue(ePassword0.equals(ePassword1)),
-				() -> assertFalse(ePassword1.equals(ePassword2))
+				() -> assertEquals(ePassword0, ePassword1),
+				() -> assertNotEquals(ePassword1, ePassword2)
 				);
 	}
 	

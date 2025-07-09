@@ -12,13 +12,13 @@ import java.util.Comparator;
 // sortiranje po iznosu
 class TransactionAmountComparator implements Comparator<Transaction> {
 	public int compare(Transaction t1, Transaction t2) {
-		return t1.amount > t2.amount ? -1 : 1;
+		return t1.amount > t2.amount ? 0 : 1;
 	}
 }
 // sortiranje po datumu
 class TransactionDateComparator implements Comparator<Transaction> {
 	public int compare(Transaction t1, Transaction t2) {
-		return t1.date.isAfter(t2.date) ? -1 : 1;
+		return t1.date.isAfter(t2.date) ? 0 : 1;
 	}
 }
 
